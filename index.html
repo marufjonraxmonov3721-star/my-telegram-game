@@ -24,7 +24,6 @@
         .header { margin-top: 20px; text-align: center; }
         .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; }
         
-        /* Energiya bar */
         .energy-container {
             width: 80%;
             height: 12px;
@@ -51,7 +50,6 @@
 
         .stats-row { display: flex; gap: 20px; margin-top: 10px; font-size: 0.9rem; color: #aaa; }
 
-        /* Leaderboard Style */
         .leaderboard {
             width: 90%;
             background: #25252b;
@@ -78,6 +76,7 @@
             padding: 10px 20px;
             border-radius: 20px;
             font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -101,7 +100,7 @@
     </button>
 
     <div class="shop">
-        <button id="upgrade-btn">Upgrade X2 (Narxi: 100)</button>
+        <button id="upgrade-btn">Upgrade (Narxi: 100)</button>
     </div>
 
     <div class="leaderboard">
@@ -130,18 +129,23 @@
         let energy = 100;
         let clickPower = 1;
         let upgradeCost = 100;
-        let userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
-        let userName = tg.initDataUnsafe?.user?.first_name || "Mehmon";
+        
+        // Telegram foydalanuvchisini aniqlash
+        const isTelegram = !!(tg.initDataUnsafe && tg.initDataUnsafe.user);
+        let userId = isTelegram ? tg.initDataUnsafe.user.id.toString() : "guest";
+        let userName = isTelegram ? tg.initDataUnsafe.user.first_name : "Mehmon (Brauzer)";
 
         const scoreEl = document.getElementById('score');
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
         const clickPowerEl = document.getElementById('click-power');
         const upgradeBtn = document.getElementById('upgrade-btn');
+        const nameEl = document.getElementById('user-name');
 
-        document.getElementById('user-name').innerText = userName;
+        nameEl.innerText = userName;
 
         async function loadUserData() {
+            if (!isTelegram) return;
             const docSnap = await getDoc(doc(db, "players", userId));
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -161,16 +165,22 @@
         }
 
         async function saveToFirebase() {
-            await setDoc(doc(db, "players", userId), {
-                name: userName,
-                score: score,
-                clickPower: clickPower,
-                upgradeCost: upgradeCost,
-                lastUpdate: new Date()
-            }, { merge: true });
+            // FAQAT Telegram foydalanuvchilari uchun bazaga saqlash
+            if (!isTelegram || userId === "guest") return;
+
+            try {
+                await setDoc(doc(db, "players", userId), {
+                    name: userName,
+                    score: score,
+                    clickPower: clickPower,
+                    upgradeCost: upgradeCost,
+                    lastUpdate: new Date()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Saqlashda xato:", e);
+            }
         }
 
-        // Klik funksiyasi
         document.getElementById('clickBtn').addEventListener('click', () => {
             if (energy >= clickPower) {
                 score += clickPower;
@@ -183,7 +193,6 @@
             }
         });
 
-        // Upgrade funksiyasi
         upgradeBtn.addEventListener('click', () => {
             if (score >= upgradeCost) {
                 score -= upgradeCost;
@@ -194,7 +203,6 @@
             }
         });
 
-        // Energiyani tiklash (har 2 sekundda +1)
         setInterval(() => {
             if (energy < 100) {
                 energy += 1;
@@ -202,26 +210,32 @@
             }
         }, 2000);
 
-        // Leaderboardni real vaqtda yangilash
-        const q = query(collection(db, "players"), orderBy("score", "desc"), limit(10));
+        // Leaderboard (Mehmonlarni ko'rsatmaydi)
+        const q = query(collection(db, "players"), orderBy("score", "desc"), limit(20));
         onSnapshot(q, (snapshot) => {
             const listEl = document.getElementById('leaderboard-list');
             listEl.innerHTML = "";
             let rank = 1;
             snapshot.forEach((doc) => {
                 const p = doc.data();
-                listEl.innerHTML += `
-                    <div class="player-item">
-                        <span><span class="rank">#${rank}</span> ${p.name}</span>
-                        <span>💰 ${p.score}</span>
-                    </div>
-                `;
-                rank++;
+                // Faqat Telegram foydalanuvchilarini jadvalga qo'shish
+                if (p.name && !p.name.includes("Mehmon")) {
+                    if (rank <= 10) { // Faqat Top 10 ni chiqarish
+                        listEl.innerHTML += `
+                            <div class="player-item">
+                                <span><span class="rank">#${rank}</span> ${p.name}</span>
+                                <span>💰 ${p.score}</span>
+                            </div>
+                        `;
+                        rank++;
+                    }
+                }
             });
         });
 
         loadUserData();
         tg.expand();
+        tg.ready();
     </script>
 </body>
 </html>
