@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Games RM Clicker</title>
+    <title>Games RM Elite Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
-            height: 100vh; background: #0f0f12; color: white; font-family: 'Segoe UI', sans-serif;
+            height: 100vh; background: #0b0b0e; color: white; font-family: 'Segoe UI', sans-serif;
             overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
-        .header { margin-top: 15px; text-align: center; }
-        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
+        .header { margin-top: 20px; text-align: center; width: 100%; }
+        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
+        .league-badge { 
+            background: linear-gradient(45deg, #ffd700, #b8860b); color: black; 
+            padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; 
+            margin-bottom: 8px; display: inline-block; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
         
         .energy-container { width: 85%; height: 10px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.3s; }
 
-        .click-area { position: relative; margin: 15px 0; }
+        .click-area { position: relative; margin: 20px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 190px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
-        .click-btn:active { transform: scale(0.95); }
+        .click-btn img { width: 180px; filter: drop-shadow(0 0 25px rgba(241, 196, 15, 0.3)); }
+        .click-btn:active { transform: scale(0.93); }
 
-        .tap-number {
-            position: absolute; color: #f1c40f; font-size: 1.5rem; font-weight: bold;
-            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
-        }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .tap-number { position: absolute; color: #f1c40f; font-size: 1.6rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-110px); } }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin-top: 10px; }
-        .btn-action {
-            background: #1e1e24; border: 1px solid #333; color: white; padding: 12px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem;
+        .btn-action { 
+            background: #1a1a20; border: 1px solid #333; color: white; padding: 12px; 
+            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; 
+            transition: 0.2s;
         }
+        .btn-action:active { background: #222; }
 
-        .leaderboard {
-            width: 90%; background: #16161a; border-radius: 15px; margin-top: 25px;
-            padding: 15px; margin-bottom: 40px; border: 1px solid #222;
-        }
-        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
+        .section-box { width: 90%; background: #16161a; border-radius: 15px; margin-top: 20px; padding: 15px; border: 1px solid #222; box-sizing: border-box; margin-bottom: 40px; }
+        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="user-name">Yuklanmoqda...</div>
+        <div id="league-name" class="league-badge">Bronze League</div><br>
+        <div id="user-name" style="font-size: 0.95rem; color: #aaa;">Yuklanmoqda...</div>
         <div class="score-display">💰 <span id="score">0</span></div>
-        <div style="font-size: 0.8rem; color: #888;">Energia: <span id="energy-text">100</span>/100</div>
+        <div style="font-size: 0.8rem; color: #777; margin-top: 5px;">
+            Energia: <span id="energy-text">100</span>/100 | 🤖 <span id="auto-rate">0</span>/sek
+        </div>
     </div>
 
     <div class="energy-container"><div id="energy-bar"></div></div>
@@ -56,13 +60,14 @@
     </div>
 
     <div class="menu-grid">
-        <button class="btn-action" id="upgradeBtn" style="background:#27ae60; border:none;">🚀 Upgrade (100)</button>
+        <button class="btn-action" id="upgradeBtn" style="background:#27ae60; border:none; color: white;">🚀 Upgrade (100)</button>
+        <button class="btn-action" id="autoBtn">🤖 Robot (500)</button>
         <button class="btn-action" id="dailyBtn">🎁 Bonus</button>
-        <button class="btn-action" style="grid-column: span 2;" id="refBtn">👥 Do'stlarni chaqirish (+5000)</button>
+        <button class="btn-action" id="refBtn">👥 Referal</button>
     </div>
 
-    <div class="leaderboard">
-        <h3 style="margin:0 0 10px 0; font-size: 1rem;">🏆 Top O'yinchilar</h3>
+    <div class="section-box">
+        <h4 style="margin:0 0 10px 0; color:#f1c40f; text-align: center;">🏆 Top O'yinchilar</h4>
         <div id="leaderboard-list">Yuklanmoqda...</div>
     </div>
 
@@ -84,11 +89,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let score = 0, energy = 100, clickPower = 1, upgradeCost = 100;
+        let score = 0, energy = 100, clickPower = 1, upgradeCost = 100, autoPower = 0, autoCost = 500;
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
         const userName = tg.initDataUnsafe?.user?.first_name || "Mehmon";
-
-        document.getElementById('user-name').innerText = userName;
 
         async function initGame() {
             if (userId === "guest") return;
@@ -96,17 +99,19 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, lastDaily: 0 });
-                const startParam = tg.initDataUnsafe.start_param;
-                if (startParam && startParam !== userId) {
-                    await setDoc(doc(db, "players", startParam), { score: increment(5000) }, { merge: true });
+                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
+                if (tg.initDataUnsafe.start_param) {
+                    await setDoc(doc(db, "players", tg.initDataUnsafe.start_param), { score: increment(5000) }, { merge: true });
                 }
             } else {
                 const data = docSnap.data();
                 score = data.score || 0;
                 clickPower = data.clickPower || 1;
                 upgradeCost = data.upgradeCost || 100;
+                autoPower = data.autoPower || 0;
+                autoCost = data.autoCost || 500;
             }
+            document.getElementById('user-name').innerText = userName;
             updateUI();
         }
 
@@ -115,26 +120,15 @@
             document.getElementById('energy-text').innerText = energy;
             document.getElementById('energy-bar').style.width = energy + "%";
             document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
+            document.getElementById('autoBtn').innerText = `🤖 Robot (${autoCost})`;
+            document.getElementById('auto-rate').innerText = autoPower;
+            
+            let league = "Bronze";
+            if (score > 1000000) league = "Diamond";
+            else if (score > 500000) league = "Gold";
+            else if (score > 100000) league = "Silver";
+            document.getElementById('league-name').innerText = league + " League";
         }
-
-        // --- BONUS FUNKSIYASI ---
-        document.getElementById('dailyBtn').addEventListener('click', async () => {
-            const userRef = doc(db, "players", userId);
-            const docSnap = await getDoc(userRef);
-            const data = docSnap.data();
-            const lastDaily = data.lastDaily || 0;
-            const now = Date.now();
-
-            if (now - lastDaily > 86400000) { // 24 soat (millisoniyalarda)
-                score += 1000;
-                await setDoc(userRef, { lastDaily: now, score: score }, { merge: true });
-                tg.showAlert("Tabriklaymiz! 1000 ball bonus berildi.");
-                updateUI();
-            } else {
-                const hoursLeft = Math.ceil((86400000 - (now - lastDaily)) / 3600000);
-                tg.showAlert(`Bonus olingan! Keyingi bonusga ${hoursLeft} soat qoldi.`);
-            }
-        });
 
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
             if (energy >= 1) {
@@ -142,6 +136,37 @@
                 showTap(e); updateUI(); save();
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             }
+        });
+
+        document.getElementById('upgradeBtn').addEventListener('click', () => {
+            if (score >= upgradeCost) {
+                score -= upgradeCost; clickPower++; upgradeCost *= 2;
+                updateUI(); save();
+            }
+        });
+
+        document.getElementById('autoBtn').addEventListener('click', () => {
+            if (score >= autoCost) {
+                score -= autoCost; autoPower++; autoCost *= 2;
+                updateUI(); save();
+                tg.showAlert("Robot sotib olindi! Avtomatik ball yig'ish boshlandi.");
+            }
+        });
+
+        document.getElementById('dailyBtn').addEventListener('click', async () => {
+            const userRef = doc(db, "players", userId);
+            const data = (await getDoc(userRef)).data();
+            if (Date.now() - (data.lastDaily || 0) > 86400000) {
+                score += 1000;
+                await setDoc(userRef, { lastDaily: Date.now(), score: score }, { merge: true });
+                tg.showAlert("1000 ball kunlik bonus berildi!");
+                updateUI();
+            } else tg.showAlert("Kunlik bonus olingan. Ertaga qaytib keling!");
+        });
+
+        document.getElementById('refBtn').addEventListener('click', () => {
+            const link = `https://t.me/Games_RM_bot?start=${userId}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing!`);
         });
 
         function showTap(e) {
@@ -156,34 +181,23 @@
             setTimeout(() => num.remove(), 800);
         }
 
-        document.getElementById('upgradeBtn').addEventListener('click', () => {
-            if (score >= upgradeCost) {
-                score -= upgradeCost; clickPower++; upgradeCost *= 2;
-                updateUI(); save();
-            }
-        });
-
-        document.getElementById('refBtn').addEventListener('click', () => {
-            const refLink = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=💰 Men bilan birga tanga yig'ing!`);
-        });
-
-        async function save() { if (userId !== "guest") await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost }, { merge: true }); }
+        async function save() { if (userId !== "guest") await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost, autoPower, autoCost }, { merge: true }); }
         
-        setInterval(() => { if (energy < 100) { energy++; updateUI(); } }, 1500);
+        setInterval(() => {
+            if (autoPower > 0) { score += autoPower; updateUI(); }
+            if (energy < 100) { energy++; updateUI(); }
+        }, 1000);
 
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
-                const p = d.data();
-                if (p.name && !p.name.includes("Mehmon")) {
-                    list.innerHTML += `<div class="player-item"><span><b>#${r}</b> ${p.name}</span><span>💰 ${Math.floor(p.score).toLocaleString()}</span></div>`;
+                if (!d.data().name.includes("Mehmon")) {
+                    list.innerHTML += `<div class="player-item"><span><b>#${r}</b> ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
                     r++;
                 }
             });
         });
-
         initGame();
     </script>
 </body>
