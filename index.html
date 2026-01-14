@@ -17,7 +17,7 @@
             --border-glass: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
             margin: 0;
@@ -28,6 +28,7 @@
             background-image: radial-gradient(circle at 50% 50%, rgba(255, 204, 0, 0.05) 0%, transparent 50%);
         }
 
+        /* Top Panel */
         .top-panel {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -38,56 +39,66 @@
             position: fixed; top: 0; width: 100%; z-index: 1000;
         }
 
-        .stat-item { text-align: center; position: relative; }
-        .stat-label { font-size: 0.6rem; color: #888; text-transform: uppercase; font-family: 'Orbitron'; }
-        .stat-value { font-size: 1.1rem; font-weight: 900; color: var(--neon-gold); display: block; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 0.6rem; color: #888; text-transform: uppercase; font-family: 'Orbitron'; letter-spacing: 1px; }
+        .stat-value { font-size: 1rem; font-weight: 900; color: var(--neon-gold); display: block; }
 
+        /* Pages */
         .page {
             display: none;
             height: 100vh;
             padding: 90px 20px 100px 20px;
             overflow-y: auto;
-            animation: fadeIn 0.4s ease;
         }
 
         .active-page { display: flex; flex-direction: column; align-items: center; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+        /* Base Animation */
         .hero-base { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
         .base-core {
-            width: 160px; height: 160px;
+            width: 150px; height: 150px;
             background: linear-gradient(135deg, #1a1a2e, #0f3460);
-            border-radius: 40px; border: 2px solid var(--neon-green);
+            border-radius: 35px; border: 2px solid var(--neon-green);
             display: flex; align-items: center; justify-content: center;
             animation: float 4s infinite ease-in-out;
             box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+            position: relative;
         }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
 
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; }
+        /* Buttons */
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; padding-bottom: 10px; }
         .action-btn {
             background: var(--card-glass); border: 1px solid var(--border-glass);
-            border-radius: 20px; padding: 15px; color: white; text-align: center;
+            border-radius: 18px; padding: 12px; color: white; text-align: center;
+            transition: 0.2s;
         }
+        .action-btn:active { transform: scale(0.95); }
 
         .attack-bar {
             grid-column: span 2; background: linear-gradient(90deg, #ff3366, #ff6633);
-            border: none; padding: 18px; border-radius: 20px; font-family: 'Orbitron'; font-weight: 900;
+            border: none; padding: 15px; border-radius: 18px; font-family: 'Orbitron'; font-weight: 900;
+            font-size: 1rem; color: white; letter-spacing: 1px;
         }
 
-        .list-container { width: 100%; background: var(--card-glass); border-radius: 25px; border: 1px solid var(--border-glass); }
+        /* List Items */
+        .list-container { width: 100%; background: var(--card-glass); border-radius: 20px; border: 1px solid var(--border-glass); margin-bottom: 20px; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border-glass); }
+        .list-item:last-child { border-bottom: none; }
 
+        /* Navigation */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 75px;
             background: rgba(10, 10, 15, 0.98); display: flex;
             justify-content: space-around; align-items: center; border-top: 1px solid var(--border-glass);
+            padding-bottom: 15px;
         }
 
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: #555; font-size: 0.7rem; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: #555; text-decoration: none; }
         .nav-link.active { color: var(--neon-gold); }
+        .nav-link i { font-size: 1.8rem; }
+        .nav-link span { font-size: 0.65rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -98,27 +109,51 @@
         <div class="stat-item"><span class="stat-label">Armiya</span><span class="stat-value" id="army-ui">0</span></div>
     </div>
 
+    <!-- Home Page -->
     <div id="p-home" class="page active-page">
-        <div class="hero-base"><div class="base-core"><i class="material-icons" style="font-size:5rem; color:var(--neon-green)">castle</i></div></div>
+        <div class="hero-base">
+            <div class="base-core">
+                <i class="material-icons" style="font-size:4.5rem; color:var(--neon-green)">fort</i>
+            </div>
+        </div>
         <div class="controls-grid">
-            <div class="action-btn" onclick="upgrade('prod')"><i class="material-icons">precision_manufacturing</i><br>Zavod<br><span id="p-cost-ui" style="color:var(--neon-green)">100</span></div>
-            <div class="action-btn" onclick="upgrade('army')"><i class="material-icons">military_tech</i><br>Armiya<br><span id="a-cost-ui" style="color:var(--neon-green)">200</span></div>
-            <button class="action-btn attack-bar" onclick="switchPage('p-war', document.getElementById('nav-war'))">HUJUMGA O'TISH</button>
+            <div class="action-btn" onclick="upgrade('prod')">
+                <i class="material-icons" style="color:var(--neon-gold)">factory</i><br>
+                Zavod (+5)<br><span id="p-cost-ui" style="color:var(--neon-green)">100</span>
+            </div>
+            <div class="action-btn" onclick="upgrade('army')">
+                <i class="material-icons" style="color:var(--neon-gold)">security</i><br>
+                Armiya (+25)<br><span id="a-cost-ui" style="color:var(--neon-green)">200</span>
+            </div>
+            <button class="action-btn attack-bar" onclick="switchPage('p-war', document.getElementById('nav-war'))">URUSH HUDUDI</button>
         </div>
     </div>
 
-    <div id="p-war" class="page"><h2 style="font-family:'Orbitron'; color:var(--neon-red)">ZONE</h2><div class="list-container" id="war-list"></div></div>
-    <div id="p-top" class="page"><h2 style="font-family:'Orbitron'; color:var(--neon-gold)">TOP</h2><div class="list-container" id="top-list"></div></div>
+    <!-- War Page -->
+    <div id="p-war" class="page">
+        <h2 style="font-family:'Orbitron'; color:var(--neon-red); text-align:center;">RAQIBLAR</h2>
+        <div class="list-container" id="war-list">
+            <div style="padding:20px; text-align:center; color:#555;">Skanerlanmoqda...</div>
+        </div>
+    </div>
+
+    <!-- Top Page -->
+    <div id="p-top" class="page">
+        <h2 style="font-family:'Orbitron'; color:var(--neon-gold); text-align:center;">REYTING</h2>
+        <div class="list-container" id="top-list">
+            <div style="padding:20px; text-align:center; color:#555;">Yuklanmoqda...</div>
+        </div>
+    </div>
 
     <nav class="bottom-nav">
-        <div class="nav-link active" id="nav-home" onclick="switchPage('p-home', this)"><i class="material-icons">dashboard</i><span>BAZA</span></div>
+        <div class="nav-link active" id="nav-home" onclick="switchPage('p-home', this)"><i class="material-icons">castle</i><span>BAZA</span></div>
         <div class="nav-link" id="nav-war" onclick="switchPage('p-war', this)"><i class="material-icons">rocket_launch</i><span>URUSH</span></div>
-        <div class="nav-link" id="nav-top" onclick="switchPage('p-top', this)"><i class="material-icons">emoji_events</i><span>TOP</span></div>
+        <div class="nav-link" id="nav-top" onclick="switchPage('p-top', this)"><i class="material-icons">military_tech</i><span>TOP</span></div>
     </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, signInAnonymously, getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
@@ -131,17 +166,25 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let state = { gold: 500, prod: 5, army: 100, pCost: 100, aCost: 200, name: tg.initDataUnsafe?.user?.first_name || "Lider" };
-        const uid = tg.initDataUnsafe?.user?.id?.toString() || "dev_user";
+        const appId = "ilova-79e22";
+        const uid = tg.initDataUnsafe?.user?.id?.toString() || "web_tester";
+        const uname = tg.initDataUnsafe?.user?.first_name || "Imperator";
+
+        let state = { gold: 500, prod: 5, army: 100, pCost: 100, aCost: 200, name: uname };
+
+        // Path Rule: /artifacts/{appId}/public/data/{collectionName}
+        const collectionPath = `artifacts/${appId}/public/data/players`;
 
         window.switchPage = (id, el) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById(id).classList.add('active-page');
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
+            if(el) el.classList.add('active');
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         };
 
         function refreshUI() {
@@ -152,60 +195,119 @@
             document.getElementById('a-cost-ui').innerText = state.aCost;
         }
 
-        async function init() {
-            const userRef = doc(db, "empire_pro", uid);
-            const snap = await getDoc(userRef);
-            if (!snap.exists()) await setDoc(userRef, state);
-            else state = { ...state, ...snap.data() };
-            refreshUI();
-            
+        async function initGame() {
+            try {
+                await signInAnonymously(auth);
+                const userRef = doc(db, collectionPath, uid);
+                const snap = await getDoc(userRef);
+
+                if (!snap.exists()) {
+                    await setDoc(userRef, state);
+                } else {
+                    state = { ...state, ...snap.data() };
+                }
+
+                refreshUI();
+                startLoop();
+                initRealtime();
+            } catch (e) {
+                console.error("Init Error:", e);
+                tg.showAlert("Firebase ulanishda xato!");
+            }
+        }
+
+        function startLoop() {
             setInterval(async () => {
                 state.gold += (state.prod / 5);
                 refreshUI();
-                if (Math.random() > 0.98) await updateDoc(userRef, { gold: state.gold });
+                // Har 15 sekundda saqlash (limitlarga tushmaslik uchun)
+                if (Math.random() > 0.98) {
+                    await updateDoc(doc(db, collectionPath, uid), { gold: state.gold });
+                }
             }, 200);
         }
 
         window.upgrade = async (type) => {
             if (type === 'prod' && state.gold >= state.pCost) {
-                state.gold -= state.pCost; state.prod += 5; state.pCost *= 2;
+                state.gold -= state.pCost; state.prod += 5; state.pCost = Math.floor(state.pCost * 1.8);
             } else if (type === 'army' && state.gold >= state.aCost) {
-                state.gold -= state.aCost; state.army += 25; state.aCost *= 2;
-            } else return;
+                state.gold -= state.aCost; state.army += 25; state.aCost = Math.floor(state.aCost * 1.6);
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
             refreshUI();
-            await updateDoc(doc(db, "empire_pro", uid), state);
+            tg.HapticFeedback.impactOccurred('medium');
+            await updateDoc(doc(db, collectionPath, uid), state);
         };
 
-        onSnapshot(query(collection(db, "empire_pro"), orderBy("gold", "desc"), limit(15)), (snap) => {
-            const top = document.getElementById('top-list');
-            const war = document.getElementById('war-list');
-            top.innerHTML = ""; war.innerHTML = "";
-            snap.forEach(d => {
-                const p = d.data();
-                top.innerHTML += `<div class="list-item"><span>${p.name}</span><span style="color:var(--neon-gold)">💰 ${Math.floor(p.gold)}</span></div>`;
-                if(d.id !== uid) {
-                    war.innerHTML += `<div class="list-item"><span>${p.name} (🎖${p.army})</span><button onclick="attack('${d.id}', ${p.army})" style="background:none; border:1px solid var(--neon-red); color:white; border-radius:10px; padding:5px 10px;">URUSH</button></div>`;
-                }
-            });
-        });
+        function initRealtime() {
+            // Reyting va Urush ro'yxati
+            const q = query(collection(db, collectionPath), limit(50));
+            onSnapshot(q, (snap) => {
+                const topList = document.getElementById('top-list');
+                const warList = document.getElementById('war-list');
+                
+                let players = [];
+                snap.forEach(doc => players.push({ id: doc.id, ...doc.data() }));
 
-        window.attack = async (tid, tarmy) => {
-            tg.showConfirm("Hujum qilasizmi?", async (ok) => {
+                // JS orqali saralash (Firebase Index talab qilmasligi uchun)
+                players.sort((a, b) => b.gold - a.gold);
+
+                topList.innerHTML = "";
+                warList.innerHTML = "";
+
+                players.forEach((p, index) => {
+                    // Top List
+                    topList.innerHTML += `
+                        <div class="list-item" style="${p.id === uid ? 'border:1px solid var(--neon-gold)' : ''}">
+                            <span><b>${index + 1}.</b> ${p.name}</span>
+                            <span style="color:var(--neon-gold)">💰 ${Math.floor(p.gold).toLocaleString()}</span>
+                        </div>`;
+
+                    // War List (Faqat o'zimizdan tashqari)
+                    if (p.id !== uid) {
+                        warList.innerHTML += `
+                            <div class="list-item">
+                                <div>
+                                    <span style="display:block;">${p.name}</span>
+                                    <small style="color:#666">Armiya: 🎖${p.army}</small>
+                                </div>
+                                <button onclick="launchAttack('${p.id}', '${p.name}', ${p.army})" 
+                                    style="background:none; border:1px solid var(--neon-red); color:white; padding:5px 12px; border-radius:10px;">
+                                    URUSH
+                                </button>
+                            </div>`;
+                    }
+                });
+            }, (err) => {
+                console.error("Snapshot error:", err);
+            });
+        }
+
+        window.launchAttack = async (tid, tname, tarmy) => {
+            if(state.army < 30) return tg.showAlert("Hujum uchun kamida 30 askar kerak!");
+
+            tg.showConfirm(`${tname} bazasiga hujum qilamizmi?`, async (ok) => {
                 if(ok) {
                     if(state.army > tarmy) {
-                        state.gold += 1000; state.army -= 20;
-                        tg.showAlert("G'alaba! +1,000 oltin");
+                        const win = 1000 + Math.floor(Math.random() * 2000);
+                        state.gold += win;
+                        state.army = Math.max(10, state.army - Math.floor(tarmy * 0.3));
+                        tg.showAlert("G'alaba! +" + win + " oltin o'g'irlandi!");
+                        tg.HapticFeedback.notificationOccurred('success');
                     } else {
-                        state.army = 10;
-                        tg.showAlert("Mag'lubiyat!");
+                        state.army = Math.floor(state.army * 0.2);
+                        tg.showAlert("Mag'lubiyat! Armiyangiz deyarli yo'q qilindi.");
+                        tg.HapticFeedback.notificationOccurred('error');
                     }
-                    await updateDoc(doc(db, "empire_pro", uid), state);
                     refreshUI();
+                    await updateDoc(doc(db, collectionPath, uid), state);
                 }
             });
         };
 
-        init();
+        initGame();
     </script>
 </body>
 </html>
