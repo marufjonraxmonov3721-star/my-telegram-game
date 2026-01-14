@@ -7,63 +7,75 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; background: #0b0b0e; color: white; font-family: sans-serif; overflow: hidden; }
-        .page { display: none; width: 100%; flex-direction: column; align-items: center; height: calc(100vh - 70px); padding-top: 20px; overflow-y: auto; }
+        body { margin: 0; padding: 0; background: #050507; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .page { display: none; width: 100%; flex-direction: column; align-items: center; height: calc(100vh - 70px); padding-top: 15px; overflow-y: auto; }
         .active-page { display: flex; }
-        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; margin: 10px 0; }
-        .click-btn { background: none; border: none; outline: none; transition: transform 0.1s; }
-        .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.4)); }
-        .click-btn:active { transform: scale(0.9); }
-        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; width: 85%; font-weight: bold; margin: 8px 0; font-size: 1rem; }
-        .input-box { width: 80%; padding: 15px; border-radius: 15px; border: 1px solid #333; background: #16161a; color: white; text-align: center; font-size: 1.2rem; margin-bottom: 10px; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 0.8rem; }
+        
+        /* Bonus Oynasi */
+        #main-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: #121217; padding: 40px 20px; border-radius: 35px; border: 2px solid #f1c40f; text-align: center; width: 80%; box-shadow: 0 0 50px rgba(241, 196, 15, 0.2); }
+        
+        .score-display { font-size: 3.5rem; font-weight: 900; color: #f1c40f; margin: 15px 0; text-shadow: 0 0 15px rgba(241, 196, 15, 0.5); }
+        .click-btn { background: none; border: none; outline: none; transition: transform 0.1s ease; cursor: pointer; }
+        .click-btn:active { transform: scale(0.92); }
+        .click-btn img { width: 230px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
+
+        .btn-action { background: #1a1a22; border: 1px solid #333; color: white; padding: 18px; border-radius: 20px; width: 88%; font-weight: bold; margin: 10px 0; font-size: 1rem; cursor: pointer; }
+        .btn-primary { background: #f1c40f; color: #000; border: none; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #666; font-size: 0.75rem; }
         .nav-item.active { color: #f1c40f; }
-        .section-box { width: 85%; background: #16161a; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #222; }
+        .section-box { width: 88%; background: #111; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #222; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <div id="p1" class="page active-page">
-        <div style="background:#f1c40f; color:black; padding:4px 12px; border-radius:20px; font-weight:bold; font-size:0.8rem;">PRO LEAGUE</div>
-        <div class="score-display">💰 <span id="score">0</span></div>
-        <button class="click-btn" id="tap"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
-        <button class="btn-action" onclick="upgrade()">🚀 Kuchaytirish (<span id="up-cost">100</span>)</button>
-        <button class="btn-action" onclick="buyRobot()">🤖 Avto-Robot (<span id="rb-cost">500</span>)</button>
+    <div id="main-modal">
+        <div class="modal-content">
+            <div id="modal-icon" style="font-size: 5rem;">🎁</div>
+            <h2 id="modal-title" style="margin: 15px 0;">BONUS!</h2>
+            <p id="modal-desc" style="color: #aaa; margin-bottom: 25px;"></p>
+            <button class="btn-action btn-primary" onclick="closeModal()">QABUL QILISH</button>
+        </div>
     </div>
 
-    <div id="p2" class="page">
-        <h2 style="color:#f1c40f">TOP O'YINCHILAR</h2>
+    <div id="game-page" class="page active-page">
+        <div style="color: #f1c40f; font-weight: bold; font-size: 0.9rem; letter-spacing: 2px;">ELITE MINER</div>
+        <div class="score-display">💰 <span id="score">0</span></div>
+        <button class="click-btn" id="tapBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
+        <button class="btn-action" onclick="upgrade()">🚀 Upgrade (<span id="up-cost">100</span>)</button>
+        <button class="btn-action" onclick="buyRobot()">🤖 Robot (<span id="rb-cost">500</span>)</button>
+    </div>
+
+    <div id="top-page" class="page">
+        <h2 style="color: #f1c40f;">LEADERBOARD</h2>
         <div class="section-box" id="leaderboard">Yuklanmoqda...</div>
     </div>
 
-    <div id="p3" class="page">
-        <h2 style="color:#f1c40f">DO'STLAR</h2>
-        
-        <div class="section-box">
-            <p style="margin:0; color:#888;">Sizning kodingiz:</p>
-            <h1 style="margin:10px 0; letter-spacing: 5px;" id="my-code">...</h1>
-            <p style="font-size:0.8rem; color:#aaa;">Bu kodni do'stingizga yuboring.</p>
+    <div id="friends-page" class="page">
+        <h2 style="color: #f1c40f;">DO'STLAR</h2>
+        <div class="section-box" style="text-align: center;">
+            <p>Sizning taklif kodingiz:</p>
+            <h2 style="letter-spacing: 5px; color: #f1c40f;" id="user-id-display">...</h2>
         </div>
-
-        <div class="section-box" id="ref-input-area">
-            <p style="margin:0 0 10px 0;">Do'stingizning kodini kiriting:</p>
-            <input type="number" id="ref-input" class="input-box" placeholder="Kodni yozing">
-            <button class="btn-action" style="background:#27ae60; border:none;" onclick="claimRef()">BONUSNI OLISH (+5,000)</button>
+        <button class="btn-action btn-primary" onclick="shareLink()">DO'STLARNI TAKLIF QILISH</button>
+        <div style="margin-top: 20px; color: #666; font-size: 0.8rem; text-align: center; padding: 0 20px;">
+            Har bir taklif qilingan do'st uchun sizga va do'stingizga 5,000 ball beriladi!
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="tab('p1', this)"><i class="material-icons">touch_app</i><span>O'yin</span></div>
-        <div class="nav-item" onclick="tab('p2', this)"><i class="material-icons">leaderboard</i><span>Top</span></div>
-        <div class="nav-item" onclick="tab('p3', this)"><i class="material-icons">group</i><span>Do'stlar</span></div>
+        <div class="nav-item active" onclick="showTab('game-page', this)"><i class="material-icons">payments</i><span>O'yin</span></div>
+        <div class="nav-item" onclick="showTab('top-page', this)"><i class="material-icons">equalizer</i><span>Top</span></div>
+        <div class="nav-item" onclick="showTab('friends-page', this)"><i class="material-icons">people</i><span>Do'stlar</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const conf = {
+        const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
             authDomain: "ilova-79e22.firebaseapp.com",
             projectId: "ilova-79e22",
@@ -72,91 +84,141 @@
             appId: "1:1084364864104:web:4c12398e4dd6e5978ad9dd"
         };
 
-        const app = initializeApp(conf);
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let s = 0, cp = 1, uc = 100, ap = 0, ac = 500;
-        const uid = tg.initDataUnsafe?.user?.id?.toString() || "12345";
-        const uname = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
+        let balance = 0, clickPower = 1, upCost = 100, robotPower = 0, robotCost = 500;
+        const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
+        const fname = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
 
-        window.tab = (id, el) => {
+        window.showTab = (id, el) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(id).classList.add('active-page');
             el.classList.add('active');
         };
 
-        async function init() {
-            const ref = doc(db, "players", uid);
-            const snap = await getDoc(ref);
-            document.getElementById('my-code').innerText = uid;
+        window.closeModal = () => document.getElementById('main-modal').style.display = 'none';
 
-            if(!snap.exists()) {
-                await setDoc(ref, { name: uname, score: 1000, cp: 1, uc: 100, ap: 0, ac: 500, usedRef: false });
-                s = 1000;
-            } else {
-                const d = snap.data();
-                s = d.score; cp = d.cp; uc = d.uc; ap = d.ap; ac = d.ac;
-                if(d.usedRef) document.getElementById('ref-input-area').style.display = 'none';
-            }
-            update();
+        function triggerModal(icon, title, desc) {
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('main-modal').style.display = 'flex';
         }
 
-        window.claimRef = async () => {
-            const input = document.getElementById('ref-input').value;
-            if(input === uid) return tg.showAlert("O'z kodingizni kirita olmaysiz!");
-            
-            const inviterRef = doc(db, "players", input);
-            const inviterSnap = await getDoc(inviterRef);
+        async function engine() {
+            const userRef = doc(db, "players", uid);
+            const snap = await getDoc(userRef);
+            document.getElementById('user-id-display').innerText = uid;
 
-            if(inviterSnap.exists()) {
-                // 1. Taklif qilganga 5000
-                await updateDoc(inviterRef, { score: increment(5000) });
-                // 2. Taklif qilinganga (sizga) 5000
-                s += 5000;
-                await updateDoc(doc(db, "players", uid), { score: increment(5000), usedRef: true });
+            if (!snap.exists()) {
+                // YANGI FOYDALANUVCHI RO'YXATDAN O'TISHI
+                let initialScore = 1000;
+                let refBonusActive = false;
+                const inviter = tg.initDataUnsafe.start_param;
+
+                if (inviter && inviter !== uid) {
+                    initialScore = 6000; // 1000 + 5000
+                    refBonusActive = true;
+                    // Taklif qilganga ball berish
+                    try {
+                        const inviterRef = doc(db, "players", inviter);
+                        await updateDoc(inviterRef, { score: increment(5000) });
+                    } catch(e) { console.log("Inviter not found"); }
+                }
+
+                await setDoc(userRef, {
+                    name: fname, score: initialScore, cp: 1, uc: 100, rp: 0, rc: 500, lastDaily: Date.now()
+                });
                 
-                document.getElementById('ref-input-area').style.display = 'none';
-                update();
-                tg.showAlert("Bonus qabul qilindi! +5,000 ball.");
+                balance = initialScore;
+                triggerModal("🎉", "XUSH KELIBSIZ!", refBonusActive ? "Referal bonus +5,000 ball qo'shildi!" : "Sizga 1,000 ball sovg'a berildi!");
             } else {
-                tg.showAlert("Bunday kod topilmadi!");
+                // ESKI FOYDALANUVCHI MA'LUMOTLARINI YUKLASH
+                const d = snap.data();
+                balance = d.score || 0;
+                clickPower = d.cp || 1;
+                upCost = d.uc || 100;
+                robotPower = d.rp || 0;
+                robotCost = d.rc || 500;
+
+                // 24 SOATLIK BONUS TEKSHIRUVI
+                if (Date.now() - (d.lastDaily || 0) > 86400000) {
+                    balance += 2000;
+                    await updateDoc(userRef, { score: increment(2000), lastDaily: Date.now() });
+                    triggerModal("💰", "KUNDLIK BONUS!", "Yana qaytganingiz uchun 2,000 ball!");
+                }
+            }
+            refreshUI();
+        }
+
+        function refreshUI() {
+            document.getElementById('score').innerText = Math.floor(balance).toLocaleString();
+            document.getElementById('up-cost').innerText = upCost.toLocaleString();
+            document.getElementById('rb-cost').innerText = robotCost.toLocaleString();
+        }
+
+        document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            balance += clickPower;
+            refreshUI();
+            saveData();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        });
+
+        window.upgrade = async () => {
+            if (balance >= upCost) {
+                balance -= upCost; clickPower++; upCost *= 2;
+                refreshUI(); saveData();
             }
         };
 
-        function update() {
-            document.getElementById('score').innerText = Math.floor(s).toLocaleString();
-            document.getElementById('up-cost').innerText = uc;
-            document.getElementById('rb-cost').innerText = ac;
-        }
-
-        document.getElementById('tap').ontouchstart = () => {
-            s += cp; update(); save();
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        window.buyRobot = async () => {
+            if (balance >= robotCost) {
+                balance -= robotCost; robotPower += 2; robotCost *= 2;
+                refreshUI(); saveData();
+            }
         };
 
-        window.upgrade = async () => { if(s >= uc) { s -= uc; cp++; uc *= 2; update(); save(); } };
-        window.buyRobot = async () => { if(s >= ac) { s -= ac; ap++; ac *= 2; update(); save(); } };
+        window.shareLink = () => {
+            const link = `https://t.me/Games_RM_bot?start=${uid}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Do'stlar, kirishingiz bilan 5,000 ball sovg'a oling! 🚀`);
+        };
 
-        async function save() { await updateDoc(doc(db, "players", uid), { score: s, cp, uc, ap, ac }); }
+        async function saveData() {
+            await updateDoc(doc(db, "players", uid), { 
+                score: balance, cp: clickPower, uc: upCost, rp: robotPower, rc: robotCost 
+            }).catch(() => {});
+        }
 
-        setInterval(() => { if(ap > 0) { s += ap; update(); } }, 1000);
+        // Avtomatik robot ishlashi
+        setInterval(() => {
+            if (robotPower > 0) {
+                balance += robotPower;
+                refreshUI();
+            }
+        }, 1000);
 
+        // Leaderboard real-time
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
-            const h = document.getElementById('leaderboard'); h.innerHTML = "";
-            let i = 1;
+            const container = document.getElementById('leaderboard');
+            container.innerHTML = "";
+            let rank = 1;
             snap.forEach(d => {
-                h.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222;">
-                    <span>${i}. ${d.data().name}</span>
-                    <span style="color:#f1c40f">💰 ${Math.floor(d.data().score).toLocaleString()}</span>
-                </div>`;
-                i++;
+                const data = d.data();
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #222;">
+                        <span><b style="color:#f1c40f">${rank}.</b> ${data.name}</span>
+                        <span style="font-weight:bold;">💰 ${Math.floor(data.score).toLocaleString()}</span>
+                    </div>`;
+                rank++;
             });
         });
 
-        init();
+        engine();
     </script>
 </body>
 </html>
