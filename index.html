@@ -3,84 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Games RM Pro</title>
+    <title>Games RM Elite</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; background: #0b0b0e; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .page { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; overflow-y: auto; height: calc(100vh - 70px); }
+        body { margin: 0; padding: 0; background: #0b0b0e; color: white; font-family: sans-serif; overflow: hidden; }
+        .page { display: none; width: 100%; flex-direction: column; align-items: center; height: calc(100vh - 70px); padding-top: 20px; }
         .active-page { display: flex; }
-        .header { text-align: center; width: 100%; margin-bottom: 10px; }
-        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
-        .league-badge { background: #f1c40f; color: black; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-        .energy-container { width: 80%; height: 10px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-        #energy-bar { width: 100%; height: 100%; background: #f1c40f; transition: width 0.3s; }
-        .click-area { position: relative; margin: 30px 0; }
-        .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 200px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; margin-top: 10px; }
-        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; }
-        .section-box { width: 90%; background: #16161a; border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; box-sizing: border-box; }
-        .player-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 1rem; }
-        .rank-num { color: #888; margin-right: 10px; }
-        #bonus-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #1c1c22; padding: 30px; border-radius: 30px; text-align: center; width: 80%; border: 2px solid #f1c40f; }
-        .modal-btn { background: #f1c40f; color: black; border: none; padding: 12px 30px; border-radius: 15px; font-weight: bold; width: 100%; font-size: 1rem; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; }
+        
+        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; margin: 10px 0; }
+        .league-badge { background: #f1c40f; color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+        
+        .click-btn { background: none; border: none; outline: none; margin: 20px 0; transition: transform 0.05s; }
+        .click-btn img { width: 210px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
+        .click-btn:active { transform: scale(0.95); }
+
+        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; width: 85%; font-weight: bold; margin: 5px 0; }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 0.8rem; cursor: pointer; }
         .nav-item.active { color: #f1c40f; }
-        .nav-item span { font-size: 0.75rem; margin-top: 4px; }
+
+        /* Modal */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
+        .modal-box { background: #1c1c22; padding: 30px; border-radius: 25px; text-align: center; border: 2px solid #f1c40f; width: 75%; }
+        
+        .player-list { width: 90%; background: #16161a; border-radius: 15px; padding: 10px; }
+        .player-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
-    <div id="bonus-modal">
-        <div class="modal-content">
-            <div style="font-size: 4rem;">🎁</div>
-            <h2 id="modal-title" style="color:#f1c40f">KUNDLIK BONUS!</h2>
-            <div id="modal-amount" style="font-size: 2.5rem; font-weight: bold; margin: 15px 0;">💰 1,000</div>
-            <button class="modal-btn" onclick="closeModal()">OK</button>
+    <div id="modal">
+        <div class="modal-box">
+            <h2 id="m-title" style="color:#f1c40f">BONUS!</h2>
+            <p id="m-desc">Xush kelibsiz!</p>
+            <h1 id="m-amount">💰 1,000</h1>
+            <button class="btn-action" style="background:#f1c40f; color:black;" onclick="closeM()">QABUL QILISH</button>
         </div>
     </div>
 
-    <div id="game-page" class="page active-page">
-        <div class="header">
-            <div id="league-name" class="league-badge">Bronze League</div>
-            <div class="score-display">💰 <span id="score">0</span></div>
-            <div style="font-size: 0.8rem; color: #888;">Energia: <span id="energy-text">100</span>/100 | 🤖 <span id="auto-rate">0</span>/s</div>
-        </div>
-        <div class="energy-container"><div id="energy-bar"></div></div>
-        <div class="click-area" id="clickArea">
-            <button class="click-btn" id="clickBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
-        </div>
-        <div class="menu-grid">
-            <button class="btn-action" id="upgradeBtn">🚀 Upgrade</button>
-            <button class="btn-action" id="autoBtn">🤖 Robot</button>
-        </div>
+    <div id="p1" class="page active-page">
+        <div id="league" class="league-badge">Bronze League</div>
+        <div class="score-display">💰 <span id="score">0</span></div>
+        <div style="color:#888; font-size:0.9rem;">Energia: <span id="energy">100</span>/100</div>
+        
+        <button class="click-btn" id="tap"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
+        
+        <button class="btn-action" onclick="upgrade()">🚀 Upgrade (<span id="up-cost">100</span>)</button>
+        <button class="btn-action" onclick="buyRobot()">🤖 Robot (<span id="rb-cost">500</span>)</button>
     </div>
 
-    <div id="top-page" class="page">
-        <h2 style="color: #f1c40f;">🏆 Top O'yinchilar</h2>
-        <div class="section-box" id="leaderboard-list">Yuklanmoqda...</div>
+    <div id="p2" class="page">
+        <h2 style="color:#f1c40f">TOP O'YINCHILAR</h2>
+        <div class="player-list" id="leaderboard">Yuklanmoqda...</div>
     </div>
 
-    <div id="friends-page" class="page">
-        <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
-        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz START bossa, 5,000 ball olasiz!</p>
-        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Do'stlarni taklif qilish</button>
+    <div id="p3" class="page">
+        <h2 style="color:#f1c40f">DO'STLAR</h2>
+        <p style="text-align:center; padding:20px; color:#aaa;">Do'stlaringizni taklif qiling! Havola orqali kirgan do'stingizga 5,000 ball sovg'a beriladi.</p>
+        <button class="btn-action" style="background:#f1c40f; color:black;" onclick="share()">DO'STLARGA YUBORISH</button>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('game-page', this)"><i class="material-icons">touch_app</i><span>O'yin</span></div>
-        <div class="nav-item" onclick="showPage('top-page', this)"><i class="material-icons">leaderboard</i><span>Top</span></div>
-        <div class="nav-item" onclick="showPage('friends-page', this)"><i class="material-icons">group</i><span>Do'stlar</span></div>
+        <div class="nav-item active" onclick="tab('p1', this)"><i class="material-icons">touch_app</i><span>O'yin</span></div>
+        <div class="nav-item" onclick="tab('p2', this)"><i class="material-icons">leaderboard</i><span>Top</span></div>
+        <div class="nav-item" onclick="tab('p3', this)"><i class="material-icons">group</i><span>Do'stlar</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const conf = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
             authDomain: "ilova-79e22.firebaseapp.com",
             projectId: "ilova-79e22",
@@ -89,129 +85,99 @@
             appId: "1:1084364864104:web:4c12398e4dd6e5978ad9dd"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(conf);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let score = 0, energy = 100, clickPower = 1, upgradeCost = 100, autoPower = 0, autoCost = 500;
-        const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
-        const userName = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
+        let s = 0, en = 100, cp = 1, uc = 100, ap = 0, ac = 500;
+        const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest";
+        const uname = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
 
-        window.showPage = function(pId, el) {
+        window.tab = (id, el) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(pId).classList.add('active-page');
+            document.getElementById(id).classList.add('active-page');
             el.classList.add('active');
         };
 
-        window.closeModal = function() {
-            document.getElementById('bonus-modal').style.display = 'none';
-        };
+        async function init() {
+            if(uid === "guest") return;
+            const ref = doc(db, "players", uid);
+            const snap = await getDoc(ref);
 
-        async function initGame() {
-            if (userId === "guest") return;
-            const userRef = doc(db, "players", userId);
-            const docSnap = await getDoc(userRef);
+            if(!snap.exists()) {
+                let startScore = 1000;
+                let msg = "Xush kelibsiz!";
+                
+                // AGAR HAVOLA ORQALI KIRGAN BO'LSA
+                if(tg.initDataUnsafe.start_param) {
+                    startScore = 6000; // 1000 + 5000 bonus
+                    msg = "Referal bonus! +5,000 ball berildi.";
+                }
 
-            if (!docSnap.exists()) {
-                // YANGI O'YINCHI
-                const inviterId = tg.initDataUnsafe.start_param;
-                await setDoc(userRef, { 
-                    name: userName, score: 0, clickPower: 1, upgradeCost: 100, 
-                    autoPower: 0, autoCost: 500, lastDaily: 0,
-                    invitedBy: inviterId || null,
-                    refClaimed: false
-                });
-                showModal("XUSH KELIBSIZ!", "💰 1,000");
-                score = 1000;
-                await updateDoc(userRef, { score: 1000, lastDaily: Date.now() });
+                await setDoc(ref, { name: uname, score: startScore, cp: 1, uc: 100, ap: 0, ac: 500, last: Date.now() });
+                s = startScore;
+                showM("SALOM!", msg, "💰 " + startScore.toLocaleString());
             } else {
-                const data = docSnap.data();
-                score = data.score || 0;
-                clickPower = data.clickPower || 1;
-                upgradeCost = data.upgradeCost || 100;
-                autoPower = data.autoPower || 0;
-                autoCost = data.autoCost || 500;
-
-                // REFERAL TEKSHIRISH (Taklif qilgan odam uchun)
-                // Bu qism taklif qilgan odam o'yinga kirganida ishlaydi
-                const q = query(collection(db, "players"));
-                onSnapshot(q, (snapshot) => {
-                    snapshot.docChanges().forEach(async (change) => {
-                        if (change.type === "added") {
-                            const newUser = change.doc.data();
-                            if (newUser.invitedBy === userId && newUser.refClaimed === false) {
-                                // Yangi odam keldi!
-                                score += 5000;
-                                await updateDoc(userRef, { score: increment(5000) });
-                                // Yangi odamni belgilab qo'yamiz (ball berildi deb)
-                                await updateDoc(doc(db, "players", change.doc.id), { refClaimed: true });
-                                tg.showPopup({ title: 'Bonus!', message: 'Do\'stingiz uchun +5000 ball!' });
-                                updateUI();
-                            }
-                        }
-                    });
-                });
-
-                if (Date.now() - (data.lastDaily || 0) > 86400000) {
-                    showModal("KUNDLIK BONUS!", "💰 1,000");
-                    score += 1000;
-                    await updateDoc(userRef, { score: increment(1000), lastDaily: Date.now() });
+                const d = snap.data();
+                s = d.score; cp = d.cp; uc = d.uc; ap = d.ap; ac = d.ac;
+                if(Date.now() - (d.last || 0) > 86400000) {
+                    s += 1000;
+                    await updateDoc(ref, { score: increment(1000), last: Date.now() });
+                    showM("KUNDLIK BONUS", "Yana bir bor xush kelibsiz!", "💰 1,000");
                 }
             }
-            updateUI();
+            update();
         }
 
-        function showModal(title, amount) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-amount').innerText = amount;
-            document.getElementById('bonus-modal').style.display = 'flex';
-        }
+        window.showM = (t, d, a) => {
+            document.getElementById('m-title').innerText = t;
+            document.getElementById('m-desc').innerText = d;
+            document.getElementById('m-amount').innerText = a;
+            document.getElementById('modal').style.display = 'flex';
+        };
+        window.closeM = () => document.getElementById('modal').style.display = 'none';
 
-        function updateUI() {
-            document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-            document.getElementById('energy-text').innerText = energy;
-            document.getElementById('energy-bar').style.width = energy + "%";
-            document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
-            document.getElementById('autoBtn').innerText = `🤖 Robot (${autoCost})`;
-            document.getElementById('auto-rate').innerText = autoPower;
+        function update() {
+            document.getElementById('score').innerText = Math.floor(s).toLocaleString();
+            document.getElementById('energy').innerText = en;
+            document.getElementById('up-cost').innerText = uc;
+            document.getElementById('rb-cost').innerText = ac;
             let l = "Bronze";
-            if (score > 1000000) l = "Diamond"; else if (score > 500000) l = "Gold"; else if (score > 100000) l = "Silver";
-            document.getElementById('league-name').innerText = l + " League";
+            if(s > 500000) l = "Gold"; else if(s > 100000) l = "Silver";
+            document.getElementById('league').innerText = l + " League";
         }
 
-        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            if (energy >= 1) { score += clickPower; energy -= 1; updateUI(); save(); if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); }
-        });
+        document.getElementById('tap').ontouchstart = () => {
+            if(en > 0) { s += cp; en--; update(); save(); if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); }
+        };
 
-        document.getElementById('upgradeBtn').addEventListener('click', () => {
-            if (score >= upgradeCost) { score -= upgradeCost; clickPower++; upgradeCost *= 2; updateUI(); save(); }
-        });
-
-        document.getElementById('autoBtn').addEventListener('click', () => {
-            if (score >= autoCost) { score -= autoCost; autoPower++; autoCost *= 2; updateUI(); save(); }
-        });
-
-        document.getElementById('refBtn').addEventListener('click', () => {
-            const link = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 5,000 ball bonus oling!`);
-        });
-
-        async function save() { if (userId !== "guest") await updateDoc(doc(db, "players", userId), { score, clickPower, upgradeCost, autoPower, autoCost }).catch(() => {}); }
+        window.upgrade = async () => { if(s >= uc) { s -= uc; cp++; uc *= 2; update(); save(); } };
+        window.buyRobot = async () => { if(s >= ac) { s -= ac; ap++; ac *= 2; update(); save(); } };
         
-        setInterval(() => { if (autoPower > 0) { score += autoPower; updateUI(); } if (energy < 100) { energy++; updateUI(); } }, 1000);
+        window.share = () => {
+            const link = `https://t.me/Games_RM_bot?start=${uid}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Do'stlar, kirishingiz bilan 5,000 ball sovg'a oling!`);
+        };
 
-        onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(15)), (snap) => {
-            const list = document.getElementById('leaderboard-list'); list.innerHTML = ""; let r = 1;
+        async function save() { await updateDoc(doc(db, "players", uid), { score: s, cp, uc, ap, ac }); }
+
+        setInterval(() => { 
+            if(ap > 0) { s += ap; update(); } 
+            if(en < 100) { en++; update(); }
+        }, 1000);
+
+        onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
+            const h = document.getElementById('leaderboard'); h.innerHTML = "";
+            let i = 1;
             snap.forEach(d => {
-                if (d.data().name) {
-                    list.innerHTML += `<div class="player-item"><span><span class="rank-num">${r}</span> ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
-                    r++;
-                }
+                h.innerHTML += `<div class="player-item"><span>${i}. ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
+                i++;
             });
         });
-        initGame();
+
+        init();
     </script>
 </body>
 </html>
