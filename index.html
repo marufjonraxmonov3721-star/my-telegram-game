@@ -12,14 +12,14 @@
             overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
         .header { margin-top: 15px; text-align: center; }
-        .score-display { font-size: 3.5rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
+        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
         
         .energy-container { width: 85%; height: 10px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.3s; }
 
-        .click-area { position: relative; margin: 20px 0; }
+        .click-area { position: relative; margin: 15px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
+        .click-btn img { width: 190px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
         .click-btn:active { transform: scale(0.95); }
 
         .tap-number {
@@ -31,7 +31,7 @@
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin-top: 10px; }
         .btn-action {
             background: #1e1e24; border: 1px solid #333; color: white; padding: 12px;
-            border-radius: 12px; font-weight: bold; cursor: pointer;
+            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem;
         }
 
         .leaderboard {
@@ -96,7 +96,7 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100 });
+                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, lastDaily: 0 });
                 const startParam = tg.initDataUnsafe.start_param;
                 if (startParam && startParam !== userId) {
                     await setDoc(doc(db, "players", startParam), { score: increment(5000) }, { merge: true });
@@ -116,6 +116,25 @@
             document.getElementById('energy-bar').style.width = energy + "%";
             document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
         }
+
+        // --- BONUS FUNKSIYASI ---
+        document.getElementById('dailyBtn').addEventListener('click', async () => {
+            const userRef = doc(db, "players", userId);
+            const docSnap = await getDoc(userRef);
+            const data = docSnap.data();
+            const lastDaily = data.lastDaily || 0;
+            const now = Date.now();
+
+            if (now - lastDaily > 86400000) { // 24 soat (millisoniyalarda)
+                score += 1000;
+                await setDoc(userRef, { lastDaily: now, score: score }, { merge: true });
+                tg.showAlert("Tabriklaymiz! 1000 ball bonus berildi.");
+                updateUI();
+            } else {
+                const hoursLeft = Math.ceil((86400000 - (now - lastDaily)) / 3600000);
+                tg.showAlert(`Bonus olingan! Keyingi bonusga ${hoursLeft} soat qoldi.`);
+            }
+        });
 
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
             if (energy >= 1) {
