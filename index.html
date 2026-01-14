@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Mega Clicker</title>
+    <title>Games RM Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -11,39 +11,42 @@
             height: 100vh; background: #0f0f12; color: white; font-family: 'Segoe UI', sans-serif;
             overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
-        .header { margin-top: 15px; text-align: center; z-index: 10; }
-        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
+        .header { margin-top: 15px; text-align: center; }
+        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; }
         
-        .energy-container { width: 85%; height: 10px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.3s; }
+        .energy-container { width: 85%; height: 8px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        #energy-bar { width: 100%; height: 100%; background: #f1c40f; transition: width 0.3s; }
 
-        .click-area { position: relative; margin: 20px 0; touch-action: manipulation; }
+        .click-area { position: relative; margin: 10px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
+        .click-btn img { width: 180px; filter: drop-shadow(0 0 15px rgba(241, 196, 15, 0.4)); }
         .click-btn:active { transform: scale(0.95); }
 
         .tap-number {
             position: absolute; color: #f1c40f; font-size: 1.5rem; font-weight: bold;
-            pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
         }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin-top: 10px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 90%; }
         .btn-action {
-            background: #1e1e24; border: 1px solid #333; color: white; padding: 12px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem;
+            background: #1e1e24; border: 1px solid #333; color: white; padding: 10px;
+            border-radius: 12px; font-weight: bold; font-size: 0.8rem;
         }
-        .btn-upgrade { background: #27ae60; border: none; }
 
-        .leaderboard {
-            width: 90%; background: #16161a; border-radius: 15px; margin-top: 25px;
-            padding: 15px; margin-bottom: 40px; border: 1px solid #222;
+        /* Shop Section */
+        .shop-container {
+            width: 90%; background: linear-gradient(145deg, #1e1e24, #16161a);
+            border-radius: 15px; margin-top: 15px; padding: 12px; border: 1px solid #f1c40f;
         }
-        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
-        .rank { color: #f1c40f; margin-right: 5px; }
+        .shop-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #333;
+        }
+        .star-btn { background: #f1c40f; color: black; border: none; padding: 5px 12px; border-radius: 8px; font-weight: bold; }
+
+        .leaderboard { width: 90%; background: #16161a; border-radius: 15px; margin: 15px 0 30px; padding: 12px; border: 1px solid #222; }
+        .player-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -51,26 +54,36 @@
     <div class="header">
         <div id="user-name">Yuklanmoqda...</div>
         <div class="score-display">💰 <span id="score">0</span></div>
-        <div style="font-size: 0.8rem; color: #888;">Energia: <span id="energy-text">100</span>/100</div>
+        <div style="font-size: 0.7rem; color: #888;">Energia: <span id="energy-text">100</span>/100</div>
     </div>
 
     <div class="energy-container"><div id="energy-bar"></div></div>
 
     <div class="click-area" id="clickArea">
-        <button class="click-btn" id="clickBtn">
-            <img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png" alt="Coin">
-        </button>
+        <button class="click-btn" id="clickBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
     </div>
 
     <div class="menu-grid">
-        <button class="btn-action btn-upgrade" id="upgradeBtn">🚀 Upgrade (100)</button>
-        <button class="btn-action" id="dailyBtn">🎁 Kunlik Bonus</button>
+        <button class="btn-action" id="upgradeBtn" style="background:#27ae60">🚀 Upgrade (100)</button>
+        <button class="btn-action" id="dailyBtn">🎁 Bonus</button>
         <button class="btn-action" style="grid-column: span 2;" id="refBtn">👥 Do'stlarni taklif qilish (+5000)</button>
     </div>
 
+    <div class="shop-container">
+        <h3 style="margin:0 0 10px 0; font-size: 1rem; color:#f1c40f">⭐ Telegram Stars Shop</h3>
+        <div class="shop-item">
+            <span>💎 1,000,000 Tangalar</span>
+            <button class="star-btn" onclick="buyStars(50)">50 ⭐</button>
+        </div>
+        <div class="shop-item">
+            <span>⚡ Cheksiz Energiya (1s)</span>
+            <button class="star-btn" onclick="buyStars(100)">100 ⭐</button>
+        </div>
+    </div>
+
     <div class="leaderboard">
-        <h3 style="margin:0 0 10px 0; font-size: 1rem;">🏆 Top 10 O'yinchilar</h3>
-        <div id="leaderboard-list">Yuklanmoqda...</div>
+        <h3 style="margin:0 0 10px 0; font-size: 0.9rem;">🏆 Top O'yinchilar</h3>
+        <div id="leaderboard-list"></div>
     </div>
 
     <script type="module">
@@ -92,61 +105,65 @@
         tg.expand();
 
         let score = 0, energy = 100, clickPower = 1, upgradeCost = 100;
-        const isTelegram = !!(tg.initDataUnsafe && tg.initDataUnsafe.user);
-        const userId = isTelegram ? tg.initDataUnsafe.user.id.toString() : "guest";
-        const userName = isTelegram ? tg.initDataUnsafe.user.first_name : "Mehmon";
-        const startParam = tg.initDataUnsafe.start_param;
+        const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
+        const userName = tg.initDataUnsafe?.user?.first_name || "Mehmon";
 
         document.getElementById('user-name').innerText = userName;
 
         async function initGame() {
-            if (!isTelegram) return;
             const userRef = doc(db, "players", userId);
             const docSnap = await getDoc(userRef);
-
-            if (!docSnap.exists()) {
-                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, lastDaily: 0 });
-                if (startParam && startParam !== userId) {
-                    const refRef = doc(db, "players", startParam);
-                    await setDoc(refRef, { score: increment(5000) }, { merge: true });
-                }
-            } else {
+            if (docSnap.exists()) {
                 const data = docSnap.data();
                 score = data.score || 0;
                 clickPower = data.clickPower || 1;
                 upgradeCost = data.upgradeCost || 100;
+            } else {
+                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100 });
+                const startParam = tg.initDataUnsafe.start_param;
+                if (startParam && startParam !== userId) {
+                    await setDoc(doc(db, "players", startParam), { score: increment(5000) }, { merge: true });
+                }
             }
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('score').innerText = Math.floor(score);
+            document.getElementById('score').innerText = Math.floor(score).toLocaleString();
             document.getElementById('energy-text').innerText = energy;
             document.getElementById('energy-bar').style.width = energy + "%";
             document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
         }
 
-        function showTapAnim(e) {
+        window.buyStars = function(amount) {
+            // Telegram Stars to'lov oynasini ochish
+            tg.openInvoice(`https://t.me/Games_RM_bot/payment?amount=${amount}`, (status) => {
+                if (status === 'paid') {
+                    tg.showAlert("To'lov muvaffaqiyatli! Imkoniyat qo'shildi.");
+                    // Bu yerda bazada ballni oshirish kodini yozasiz
+                }
+            });
+        };
+
+        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
+            if (energy >= 1) {
+                score += clickPower; energy -= 1;
+                showAnim(e); updateUI(); save();
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            }
+        });
+
+        function showAnim(e) {
             const clickArea = document.getElementById('clickArea');
             const num = document.createElement('div');
             num.className = 'tap-number';
             num.innerText = `+${clickPower}`;
             const rect = clickArea.getBoundingClientRect();
-            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-            num.style.left = x + 'px';
-            num.style.top = y + 'px';
+            num.style.left = (e.touches[0].clientX - rect.left) + 'px';
+            num.style.top = (e.touches[0].clientY - rect.top) + 'px';
             clickArea.appendChild(num);
             setTimeout(() => num.remove(), 800);
         }
-
-        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            if (energy >= clickPower) {
-                score += clickPower; energy -= 1;
-                showTapAnim(e); updateUI(); save();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            }
-        });
 
         document.getElementById('upgradeBtn').addEventListener('click', () => {
             if (score >= upgradeCost) {
@@ -155,41 +172,20 @@
             }
         });
 
-        document.getElementById('dailyBtn').addEventListener('click', async () => {
-            const userRef = doc(db, "players", userId);
-            const docSnap = await getDoc(userRef);
-            const lastDaily = docSnap.data().lastDaily || 0;
-            const now = Date.now();
-            if (now - lastDaily > 86400000) {
-                score += 1000;
-                await setDoc(userRef, { lastDaily: now, score: score }, { merge: true });
-                tg.showAlert("Tabriklaymiz! 1000 ball bonus berildi.");
-                updateUI();
-            } else {
-                tg.showAlert("Bugun bonus olgansiz. Ertaga qaytib keling!");
-            }
-        });
-
         document.getElementById('refBtn').addEventListener('click', () => {
-            const botUsername = "Games_RM_bot"; 
-            const refLink = `https://t.me/${botUsername}?start=${userId}`;
-            const shareText = `💰 Bu o'yinda ball to'plang va sovg'alarga ega bo'ling! Meni havola orqali kiring:`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
+            const refLink = `https://t.me/Games_RM_bot?start=${userId}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=💰 Tanga yig'ing!`);
         });
 
-        async function save() { if (isTelegram) await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost }, { merge: true }); }
-
-        setInterval(() => { if (energy < 100) { energy++; updateUI(); } }, 1500);
+        async function save() { await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost }, { merge: true }); }
+        setInterval(() => { if (energy < 100) { energy++; updateUI(); } }, 2000);
 
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
-                const p = d.data();
-                if (p.name && !p.name.includes("Mehmon")) {
-                    list.innerHTML += `<div class="player-item"><span><b class="rank">#${r}</b> ${p.name}</span><span>💰 ${p.score}</span></div>`;
-                    r++;
-                }
+                list.innerHTML += `<div class="player-item"><span>#${r} ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
+                r++;
             });
         });
 
