@@ -173,7 +173,7 @@
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
-            const botUsername = "SIZNING_BOT_USERNAMI"; // SHU YERGA BOT USERNAMINI YOZING (masalan: my_clicker_bot)
+            const botUsername = "@Games_RM_bot; // SHU YERGA BOT USERNAMINI YOZING (masalan: my_clicker_bot)
             const refLink = `https://t.me/${botUsername}?start=${userId}`;
             const shareText = `💰 Bu o'yinda ball to'plang va sovg'alarga ega bo'ling! Meni havola orqali kiring: ${refLink}`;
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
