@@ -42,8 +42,6 @@
             background: #1c1c22; padding: 30px; border-radius: 30px; text-align: center;
             width: 80%; border: 2px solid #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.2);
         }
-        .modal-content h2 { color: #f1c40f; margin-top: 0; }
-        .modal-content .bonus-amount { font-size: 2.5rem; font-weight: bold; margin: 15px 0; }
         .modal-btn { background: #f1c40f; color: black; border: none; padding: 12px 30px; border-radius: 15px; font-weight: bold; width: 100%; font-size: 1rem; }
 
         .bottom-nav {
@@ -64,8 +62,8 @@
     <div id="bonus-modal">
         <div class="modal-content">
             <div style="font-size: 4rem;">🎁</div>
-            <h2>KUNDLIK BONUS!</h2>
-            <div class="bonus-amount">💰 1,000</div>
+            <h2 style="color:#f1c40f">KUNDLIK BONUS!</h2>
+            <div style="font-size: 2.5rem; font-weight: bold; margin: 15px 0;">💰 1,000</div>
             <p style="color: #aaa; margin-bottom: 20px;">Bugungi sovg'angizni qabul qilib oling!</p>
             <button class="modal-btn" onclick="claimDailyBonus()">QABUL QILISH</button>
         </div>
@@ -94,10 +92,10 @@
 
     <div id="friends-page" class="page">
         <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
-        <p style="text-align:center; color:#888; padding: 0 20px;">Har bir taklif qilingan do'st uchun 5,000 ball oling!</p>
+        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz sizning havolangiz orqali kirsa, sizga 5,000 ball beriladi!</p>
         <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black; margin-bottom: 20px;">Do'stlarni taklif qilish</button>
         <div class="section-box" style="text-align: center; color: #888;">
-            Keyingi bonus 24 soatdan keyin ochiladi.
+            Taklif qilingan do'stlar avtomatik ro'yxatga olinadi.
         </div>
     </div>
 
@@ -118,7 +116,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
@@ -152,12 +150,22 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
-                // Yangi foydalanuvchi bo'lgani uchun darhol bonus chiqarish
-                document.getElementById('bonus-modal').style.display = 'flex';
-                if (tg.initDataUnsafe.start_param) {
-                    await setDoc(doc(db, "players", tg.initDataUnsafe.start_param), { score: increment(5000) }, { merge: true });
+                // Yangi foydalanuvchi yaratish
+                await setDoc(userRef, { 
+                    name: userName, score: 0, clickPower: 1, upgradeCost: 100, 
+                    autoPower: 0, autoCost: 500, lastDaily: 0 
+                });
+
+                // REFERAL TIZIMI: Taklif qilganga ochko berish
+                const inviterId = tg.initDataUnsafe.start_param;
+                if (inviterId && inviterId !== userId) {
+                    const inviterRef = doc(db, "players", inviterId);
+                    const inviterSnap = await getDoc(inviterRef);
+                    if (inviterSnap.exists()) {
+                        await updateDoc(inviterRef, { score: increment(5000) });
+                    }
                 }
+                document.getElementById('bonus-modal').style.display = 'flex';
             } else {
                 const data = docSnap.data();
                 score = data.score || 0;
@@ -166,7 +174,6 @@
                 autoPower = data.autoPower || 0;
                 autoCost = data.autoCost || 500;
                 
-                // 24 soat tekshiruvi
                 if (Date.now() - (data.lastDaily || 0) > 86400000) {
                     document.getElementById('bonus-modal').style.display = 'flex';
                 }
@@ -177,11 +184,10 @@
         window.claimDailyBonus = async function() {
             score += 1000;
             const userRef = doc(db, "players", userId);
-            await setDoc(userRef, { lastDaily: Date.now(), score: score }, { merge: true });
+            await updateDoc(userRef, { lastDaily: Date.now(), score: score });
             document.getElementById('bonus-modal').style.display = 'none';
             updateUI();
             tg.showAlert("Tabriklaymiz! 1,000 ball qo'shildi.");
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         };
 
         function updateUI() {
@@ -218,13 +224,13 @@
             if (score >= autoCost) {
                 score -= autoCost; autoPower++; autoCost *= 2;
                 updateUI(); save();
-                tg.showAlert("Robot ishga tushdi!");
+                tg.showAlert("Robot sotib olindi!");
             }
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
             const link = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing!`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing! Bonus oling!`);
         });
 
         function showTap(e) {
@@ -239,7 +245,18 @@
             setTimeout(() => num.remove(), 800);
         }
 
-        async function save() { if (userId !== "guest") await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost, autoPower, autoCost }, { merge: true }); }
+        async function save() { 
+            if (userId !== "guest") {
+                await updateDoc(doc(db, "players", userId), { 
+                    score, clickPower, upgradeCost, autoPower, autoCost 
+                }).catch(async () => {
+                    // Agar xatolik bo'lsa (hujjat yaratilmagan bo'lsa), qayta yaratadi
+                    await setDoc(doc(db, "players", userId), { 
+                        name: userName, score, clickPower, upgradeCost, autoPower, autoCost, lastDaily: 0 
+                    }, { merge: true });
+                });
+            }
+        }
         
         setInterval(() => {
             if (autoPower > 0) { score += autoPower; updateUI(); }
@@ -250,7 +267,7 @@
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
-                if (!d.data().name.includes("Mehmon")) {
+                if (d.data().name && !d.data().name.includes("Mehmon")) {
                     list.innerHTML += `<div class="player-item">
                         <span><span class="rank-num">${r}</span> ${d.data().name}</span>
                         <span>💰 ${Math.floor(d.data().score).toLocaleString()}</span>
