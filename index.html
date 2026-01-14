@@ -22,7 +22,6 @@
         .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
         .click-btn:active { transform: scale(0.95); }
 
-        /* Tap Animatsiyasi */
         .tap-number {
             position: absolute; color: #f1c40f; font-size: 1.5rem; font-weight: bold;
             pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100;
@@ -96,7 +95,7 @@
         const isTelegram = !!(tg.initDataUnsafe && tg.initDataUnsafe.user);
         const userId = isTelegram ? tg.initDataUnsafe.user.id.toString() : "guest";
         const userName = isTelegram ? tg.initDataUnsafe.user.first_name : "Mehmon";
-        const startParam = tg.initDataUnsafe.start_param; // Referal ID
+        const startParam = tg.initDataUnsafe.start_param;
 
         document.getElementById('user-name').innerText = userName;
 
@@ -106,9 +105,7 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                // Yangi foydalanuvchi
                 await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, lastDaily: 0 });
-                // Agar referal orqali kelgan bo'lsa
                 if (startParam && startParam !== userId) {
                     const refRef = doc(db, "players", startParam);
                     await setDoc(refRef, { score: increment(5000) }, { merge: true });
@@ -129,15 +126,16 @@
             document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
         }
 
-        // Tap Animatsiyasi funksiyasi
         function showTapAnim(e) {
             const clickArea = document.getElementById('clickArea');
             const num = document.createElement('div');
             num.className = 'tap-number';
             num.innerText = `+${clickPower}`;
             const rect = clickArea.getBoundingClientRect();
-            num.style.left = (e.clientX || e.touches[0].clientX) - rect.left + 'px';
-            num.style.top = (e.clientY || e.touches[0].clientY) - rect.top + 'px';
+            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+            num.style.left = x + 'px';
+            num.style.top = y + 'px';
             clickArea.appendChild(num);
             setTimeout(() => num.remove(), 800);
         }
@@ -162,7 +160,7 @@
             const docSnap = await getDoc(userRef);
             const lastDaily = docSnap.data().lastDaily || 0;
             const now = Date.now();
-            if (now - lastDaily > 86400000) { // 24 soat
+            if (now - lastDaily > 86400000) {
                 score += 1000;
                 await setDoc(userRef, { lastDaily: now, score: score }, { merge: true });
                 tg.showAlert("Tabriklaymiz! 1000 ball bonus berildi.");
@@ -173,9 +171,9 @@
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
-            const botUsername = "@Games_RM_bot; // SHU YERGA BOT USERNAMINI YOZING (masalan: my_clicker_bot)
+            const botUsername = "Games_RM_bot"; 
             const refLink = `https://t.me/${botUsername}?start=${userId}`;
-            const shareText = `💰 Bu o'yinda ball to'plang va sovg'alarga ega bo'ling! Meni havola orqali kiring: ${refLink}`;
+            const shareText = `💰 Bu o'yinda ball to'plang va sovg'alarga ega bo'ling! Meni havola orqali kiring:`;
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
         });
 
@@ -183,7 +181,6 @@
 
         setInterval(() => { if (energy < 100) { energy++; updateUI(); } }, 1500);
 
-        // Leaderboard
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = ""; let r = 1;
