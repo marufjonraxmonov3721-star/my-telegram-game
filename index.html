@@ -8,7 +8,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* --- CSS DIZAYN --- */
         body {
             margin: 0;
             padding: 0;
@@ -97,7 +96,6 @@
             appId: "1:1084364864104:web:4c12398e4dd6e5978ad9dd"
         };
 
-        // 2. Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
@@ -109,7 +107,6 @@
         let score = 0;
         let userId = "guest_user";
 
-        // 3. Telegramdan foydalanuvchini olish
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
             nameEl.innerText = tg.initDataUnsafe.user.first_name;
@@ -117,7 +114,6 @@
             nameEl.innerText = "Mehmon (Brauzer)";
         }
 
-        // 4. Bazadan ballarni yuklash
         async function loadScore() {
             try {
                 const docRef = doc(db, "players", userId);
@@ -127,12 +123,13 @@
                     scoreEl.innerText = score;
                 }
             } catch (err) {
-                console.error("Ma'lumot yuklashda xato:", err);
+                console.error("Yuklashda xato:", err);
             }
         }
 
-        // 5. Ballarni saqlash funksiyasi
+        // Ballarni saqlash funksiyasi
         async function saveScore() {
+            if (!userId) return;
             try {
                 await setDoc(doc(db, "players", userId), {
                     name: nameEl.innerText,
@@ -144,25 +141,24 @@
             }
         }
 
-        // 6. Tugma bosish hodisasi
+        // Har bir bosishda ball oshadi va bazaga saqlanadi
         clickBtn.addEventListener('click', () => {
             score++;
             scoreEl.innerText = score;
             
-            // Har 10 bosilganda bazaga saqlaymiz (internetni tejash uchun)
-            if (score % 10 === 0) {
-                saveScore();
-            }
+            // Ballni darhol saqlaymiz (xatolik tuzatildi)
+            saveScore();
             
-            // Haptik tebranish (Vibration)
             if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
+                tg.HapticFeedback.impactOccurred('light');
             }
         });
 
-        // Dastlabki sozlamalar
+        // Qo'shimcha xavfsizlik: Har 10 sekundda saqlab turish
+        setInterval(saveScore, 10000);
+
         loadScore();
-        tg.expand(); // Ilovani to'liq ekranda ochish
+        tg.expand();
         tg.ready();
     </script>
 </body>
