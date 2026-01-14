@@ -3,67 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Games RM Elite</title>
+    <title>Games RM Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background: #0b0b0e; color: white; font-family: sans-serif; overflow: hidden; }
-        .page { display: none; width: 100%; flex-direction: column; align-items: center; height: calc(100vh - 70px); padding-top: 20px; }
+        .page { display: none; width: 100%; flex-direction: column; align-items: center; height: calc(100vh - 70px); padding-top: 20px; overflow-y: auto; }
         .active-page { display: flex; }
-        
-        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; margin: 10px 0; }
-        .league-badge { background: #f1c40f; color: black; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-        
-        .click-btn { background: none; border: none; outline: none; margin: 20px 0; transition: transform 0.05s; }
-        .click-btn img { width: 210px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
-        .click-btn:active { transform: scale(0.95); }
-
-        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; width: 85%; font-weight: bold; margin: 5px 0; }
-        
-        /* Bottom Nav */
+        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; margin: 10px 0; }
+        .click-btn { background: none; border: none; outline: none; transition: transform 0.1s; }
+        .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.4)); }
+        .click-btn:active { transform: scale(0.9); }
+        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; width: 85%; font-weight: bold; margin: 8px 0; font-size: 1rem; }
+        .input-box { width: 80%; padding: 15px; border-radius: 15px; border: 1px solid #333; background: #16161a; color: white; text-align: center; font-size: 1.2rem; margin-bottom: 10px; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 0.8rem; cursor: pointer; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 0.8rem; }
         .nav-item.active { color: #f1c40f; }
-
-        /* Modal */
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
-        .modal-box { background: #1c1c22; padding: 30px; border-radius: 25px; text-align: center; border: 2px solid #f1c40f; width: 75%; }
-        
-        .player-list { width: 90%; background: #16161a; border-radius: 15px; padding: 10px; }
-        .player-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
+        .section-box { width: 85%; background: #16161a; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
-    <div id="modal">
-        <div class="modal-box">
-            <h2 id="m-title" style="color:#f1c40f">BONUS!</h2>
-            <p id="m-desc">Xush kelibsiz!</p>
-            <h1 id="m-amount">💰 1,000</h1>
-            <button class="btn-action" style="background:#f1c40f; color:black;" onclick="closeM()">QABUL QILISH</button>
-        </div>
-    </div>
-
     <div id="p1" class="page active-page">
-        <div id="league" class="league-badge">Bronze League</div>
+        <div style="background:#f1c40f; color:black; padding:4px 12px; border-radius:20px; font-weight:bold; font-size:0.8rem;">PRO LEAGUE</div>
         <div class="score-display">💰 <span id="score">0</span></div>
-        <div style="color:#888; font-size:0.9rem;">Energia: <span id="energy">100</span>/100</div>
-        
         <button class="click-btn" id="tap"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
-        
-        <button class="btn-action" onclick="upgrade()">🚀 Upgrade (<span id="up-cost">100</span>)</button>
-        <button class="btn-action" onclick="buyRobot()">🤖 Robot (<span id="rb-cost">500</span>)</button>
+        <button class="btn-action" onclick="upgrade()">🚀 Kuchaytirish (<span id="up-cost">100</span>)</button>
+        <button class="btn-action" onclick="buyRobot()">🤖 Avto-Robot (<span id="rb-cost">500</span>)</button>
     </div>
 
     <div id="p2" class="page">
         <h2 style="color:#f1c40f">TOP O'YINCHILAR</h2>
-        <div class="player-list" id="leaderboard">Yuklanmoqda...</div>
+        <div class="section-box" id="leaderboard">Yuklanmoqda...</div>
     </div>
 
     <div id="p3" class="page">
         <h2 style="color:#f1c40f">DO'STLAR</h2>
-        <p style="text-align:center; padding:20px; color:#aaa;">Do'stlaringizni taklif qiling! Havola orqali kirgan do'stingizga 5,000 ball sovg'a beriladi.</p>
-        <button class="btn-action" style="background:#f1c40f; color:black;" onclick="share()">DO'STLARGA YUBORISH</button>
+        
+        <div class="section-box">
+            <p style="margin:0; color:#888;">Sizning kodingiz:</p>
+            <h1 style="margin:10px 0; letter-spacing: 5px;" id="my-code">...</h1>
+            <p style="font-size:0.8rem; color:#aaa;">Bu kodni do'stingizga yuboring.</p>
+        </div>
+
+        <div class="section-box" id="ref-input-area">
+            <p style="margin:0 0 10px 0;">Do'stingizning kodini kiriting:</p>
+            <input type="number" id="ref-input" class="input-box" placeholder="Kodni yozing">
+            <button class="btn-action" style="background:#27ae60; border:none;" onclick="claimRef()">BONUSNI OLISH (+5,000)</button>
+        </div>
     </div>
 
     <div class="bottom-nav">
@@ -90,8 +77,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let s = 0, en = 100, cp = 1, uc = 100, ap = 0, ac = 500;
-        const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest";
+        let s = 0, cp = 1, uc = 100, ap = 0, ac = 500;
+        const uid = tg.initDataUnsafe?.user?.id?.toString() || "12345";
         const uname = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
 
         window.tab = (id, el) => {
@@ -102,77 +89,69 @@
         };
 
         async function init() {
-            if(uid === "guest") return;
             const ref = doc(db, "players", uid);
             const snap = await getDoc(ref);
+            document.getElementById('my-code').innerText = uid;
 
             if(!snap.exists()) {
-                let startScore = 1000;
-                let msg = "Xush kelibsiz!";
-                
-                // AGAR HAVOLA ORQALI KIRGAN BO'LSA
-                if(tg.initDataUnsafe.start_param) {
-                    startScore = 6000; // 1000 + 5000 bonus
-                    msg = "Referal bonus! +5,000 ball berildi.";
-                }
-
-                await setDoc(ref, { name: uname, score: startScore, cp: 1, uc: 100, ap: 0, ac: 500, last: Date.now() });
-                s = startScore;
-                showM("SALOM!", msg, "💰 " + startScore.toLocaleString());
+                await setDoc(ref, { name: uname, score: 1000, cp: 1, uc: 100, ap: 0, ac: 500, usedRef: false });
+                s = 1000;
             } else {
                 const d = snap.data();
                 s = d.score; cp = d.cp; uc = d.uc; ap = d.ap; ac = d.ac;
-                if(Date.now() - (d.last || 0) > 86400000) {
-                    s += 1000;
-                    await updateDoc(ref, { score: increment(1000), last: Date.now() });
-                    showM("KUNDLIK BONUS", "Yana bir bor xush kelibsiz!", "💰 1,000");
-                }
+                if(d.usedRef) document.getElementById('ref-input-area').style.display = 'none';
             }
             update();
         }
 
-        window.showM = (t, d, a) => {
-            document.getElementById('m-title').innerText = t;
-            document.getElementById('m-desc').innerText = d;
-            document.getElementById('m-amount').innerText = a;
-            document.getElementById('modal').style.display = 'flex';
+        window.claimRef = async () => {
+            const input = document.getElementById('ref-input').value;
+            if(input === uid) return tg.showAlert("O'z kodingizni kirita olmaysiz!");
+            
+            const inviterRef = doc(db, "players", input);
+            const inviterSnap = await getDoc(inviterRef);
+
+            if(inviterSnap.exists()) {
+                // 1. Taklif qilganga 5000
+                await updateDoc(inviterRef, { score: increment(5000) });
+                // 2. Taklif qilinganga (sizga) 5000
+                s += 5000;
+                await updateDoc(doc(db, "players", uid), { score: increment(5000), usedRef: true });
+                
+                document.getElementById('ref-input-area').style.display = 'none';
+                update();
+                tg.showAlert("Bonus qabul qilindi! +5,000 ball.");
+            } else {
+                tg.showAlert("Bunday kod topilmadi!");
+            }
         };
-        window.closeM = () => document.getElementById('modal').style.display = 'none';
 
         function update() {
             document.getElementById('score').innerText = Math.floor(s).toLocaleString();
-            document.getElementById('energy').innerText = en;
             document.getElementById('up-cost').innerText = uc;
             document.getElementById('rb-cost').innerText = ac;
-            let l = "Bronze";
-            if(s > 500000) l = "Gold"; else if(s > 100000) l = "Silver";
-            document.getElementById('league').innerText = l + " League";
         }
 
         document.getElementById('tap').ontouchstart = () => {
-            if(en > 0) { s += cp; en--; update(); save(); if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); }
+            s += cp; update(); save();
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         };
 
         window.upgrade = async () => { if(s >= uc) { s -= uc; cp++; uc *= 2; update(); save(); } };
         window.buyRobot = async () => { if(s >= ac) { s -= ac; ap++; ac *= 2; update(); save(); } };
-        
-        window.share = () => {
-            const link = `https://t.me/Games_RM_bot?start=${uid}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Do'stlar, kirishingiz bilan 5,000 ball sovg'a oling!`);
-        };
 
         async function save() { await updateDoc(doc(db, "players", uid), { score: s, cp, uc, ap, ac }); }
 
-        setInterval(() => { 
-            if(ap > 0) { s += ap; update(); } 
-            if(en < 100) { en++; update(); }
-        }, 1000);
+        setInterval(() => { if(ap > 0) { s += ap; update(); } }, 1000);
 
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
             const h = document.getElementById('leaderboard'); h.innerHTML = "";
             let i = 1;
             snap.forEach(d => {
-                h.innerHTML += `<div class="player-item"><span>${i}. ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
+                h.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222;">
+                    <span>${i}. ${d.data().name}</span>
+                    <span style="color:#f1c40f">💰 ${Math.floor(d.data().score).toLocaleString()}</span>
+                </div>`;
                 i++;
             });
         });
