@@ -7,52 +7,29 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body {
-            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
-            height: 100vh; background: #0b0b0e; color: white; font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
-        }
-
+        body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; background: #0b0b0e; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; }
         .page { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; overflow-y: auto; height: calc(100vh - 70px); }
         .active-page { display: flex; }
-
         .header { text-align: center; width: 100%; margin-bottom: 10px; }
         .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
         .league-badge { background: #f1c40f; color: black; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-
         .energy-container { width: 80%; height: 10px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; }
         #energy-bar { width: 100%; height: 100%; background: #f1c40f; transition: width 0.3s; }
         .click-area { position: relative; margin: 30px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 220px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
-        
+        .click-btn img { width: 200px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; margin-top: 10px; }
         .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; }
-
         .section-box { width: 90%; background: #16161a; border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; box-sizing: border-box; }
         .player-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 1rem; }
         .rank-num { color: #888; margin-right: 10px; }
-
-        /* Katta Bonus Modali */
-        #bonus-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: #1c1c22; padding: 30px; border-radius: 30px; text-align: center;
-            width: 80%; border: 2px solid #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.2);
-        }
+        #bonus-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #1c1c22; padding: 30px; border-radius: 30px; text-align: center; width: 80%; border: 2px solid #f1c40f; }
         .modal-btn { background: #f1c40f; color: black; border: none; padding: 12px 30px; border-radius: 15px; font-weight: bold; width: 100%; font-size: 1rem; }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a;
-            display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid #333; z-index: 100;
-        }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; }
         .nav-item.active { color: #f1c40f; }
         .nav-item span { font-size: 0.75rem; margin-top: 4px; }
-
         .tap-number { position: absolute; color: #f1c40f; font-size: 1.8rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
@@ -64,7 +41,6 @@
             <div style="font-size: 4rem;">🎁</div>
             <h2 style="color:#f1c40f">KUNDLIK BONUS!</h2>
             <div style="font-size: 2.5rem; font-weight: bold; margin: 15px 0;">💰 1,000</div>
-            <p style="color: #aaa; margin-bottom: 20px;">Bugungi sovg'angizni qabul qilib oling!</p>
             <button class="modal-btn" onclick="claimDailyBonus()">QABUL QILISH</button>
         </div>
     </div>
@@ -80,7 +56,7 @@
             <button class="click-btn" id="clickBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
         </div>
         <div class="menu-grid">
-            <button class="btn-action" id="upgradeBtn" style="background:#27ae60; border:none;">🚀 Upgrade</button>
+            <button class="btn-action" id="upgradeBtn">🚀 Upgrade</button>
             <button class="btn-action" id="autoBtn">🤖 Robot</button>
         </div>
     </div>
@@ -92,26 +68,14 @@
 
     <div id="friends-page" class="page">
         <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
-        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz sizning havolangiz orqali kirsa, sizga 5,000 ball beriladi!</p>
-        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black; margin-bottom: 20px;">Do'stlarni taklif qilish</button>
-        <div class="section-box" style="text-align: center; color: #888;">
-            Taklif qilingan do'stlar avtomatik ro'yxatga olinadi.
-        </div>
+        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz kelsa, sizga 5,000 ball beriladi!</p>
+        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Taklif qilish</button>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('game-page', this)">
-            <i class="material-icons">touch_app</i>
-            <span>O'yin</span>
-        </div>
-        <div class="nav-item" onclick="showPage('top-page', this)">
-            <i class="material-icons">leaderboard</i>
-            <span>Top</span>
-        </div>
-        <div class="nav-item" onclick="showPage('friends-page', this)">
-            <i class="material-icons">group</i>
-            <span>Do'stlar</span>
-        </div>
+        <div class="nav-item active" onclick="showPage('game-page', this)"><i class="material-icons">touch_app</i><span>O'yin</span></div>
+        <div class="nav-item" onclick="showPage('top-page', this)"><i class="material-icons">leaderboard</i><span>Top</span></div>
+        <div class="nav-item" onclick="showPage('friends-page', this)"><i class="material-icons">group</i><span>Do'stlar</span></div>
     </div>
 
     <script type="module">
@@ -136,12 +100,11 @@
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
         const userName = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
 
-        window.showPage = function(pageId, element) {
+        window.showPage = function(pId, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active-page');
-            element.classList.add('active');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            document.getElementById(pId).classList.add('active-page');
+            el.classList.add('active');
         };
 
         async function initGame() {
@@ -150,44 +113,33 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                // Yangi foydalanuvchi yaratish
-                await setDoc(userRef, { 
-                    name: userName, score: 0, clickPower: 1, upgradeCost: 100, 
-                    autoPower: 0, autoCost: 500, lastDaily: 0 
-                });
-
-                // REFERAL TIZIMI: Taklif qilganga ochko berish
-                const inviterId = tg.initDataUnsafe.start_param;
-                if (inviterId && inviterId !== userId) {
-                    const inviterRef = doc(db, "players", inviterId);
-                    const inviterSnap = await getDoc(inviterRef);
-                    if (inviterSnap.exists()) {
+                // 1. Birinchi bo'lib taklif qilganga ochko berish
+                const startParam = tg.initDataUnsafe.start_param;
+                if (startParam && startParam !== userId) {
+                    try {
+                        const inviterRef = doc(db, "players", startParam);
                         await updateDoc(inviterRef, { score: increment(5000) });
-                    }
+                    } catch (e) { console.log("Referal xatosi:", e); }
                 }
+
+                // 2. Keyin yangi foydalanuvchini yaratish
+                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
                 document.getElementById('bonus-modal').style.display = 'flex';
             } else {
                 const data = docSnap.data();
-                score = data.score || 0;
-                clickPower = data.clickPower || 1;
-                upgradeCost = data.upgradeCost || 100;
-                autoPower = data.autoPower || 0;
+                score = data.score || 0; clickPower = data.clickPower || 1;
+                upgradeCost = data.upgradeCost || 100; autoPower = data.autoPower || 0;
                 autoCost = data.autoCost || 500;
-                
-                if (Date.now() - (data.lastDaily || 0) > 86400000) {
-                    document.getElementById('bonus-modal').style.display = 'flex';
-                }
+                if (Date.now() - (data.lastDaily || 0) > 86400000) document.getElementById('bonus-modal').style.display = 'flex';
             }
             updateUI();
         }
 
         window.claimDailyBonus = async function() {
             score += 1000;
-            const userRef = doc(db, "players", userId);
-            await updateDoc(userRef, { lastDaily: Date.now(), score: score });
+            await updateDoc(doc(db, "players", userId), { lastDaily: Date.now(), score: score });
             document.getElementById('bonus-modal').style.display = 'none';
             updateUI();
-            tg.showAlert("Tabriklaymiz! 1,000 ball qo'shildi.");
         };
 
         function updateUI() {
@@ -197,81 +149,46 @@
             document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
             document.getElementById('autoBtn').innerText = `🤖 Robot (${autoCost})`;
             document.getElementById('auto-rate').innerText = autoPower;
-            
-            let league = "Bronze";
-            if (score > 1000000) league = "Diamond";
-            else if (score > 500000) league = "Gold";
-            else if (score > 100000) league = "Silver";
-            document.getElementById('league-name').innerText = league + " League";
+            let l = "Bronze";
+            if (score > 1000000) l = "Diamond"; else if (score > 500000) l = "Gold"; else if (score > 100000) l = "Silver";
+            document.getElementById('league-name').innerText = l + " League";
         }
 
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            if (energy >= 1) {
-                score += clickPower; energy -= 1;
-                showTap(e); updateUI(); save();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            }
+            if (energy >= 1) { score += clickPower; energy -= 1; showTap(e); updateUI(); save(); if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); }
         });
 
         document.getElementById('upgradeBtn').addEventListener('click', () => {
-            if (score >= upgradeCost) {
-                score -= upgradeCost; clickPower++; upgradeCost *= 2;
-                updateUI(); save();
-            }
+            if (score >= upgradeCost) { score -= upgradeCost; clickPower++; upgradeCost *= 2; updateUI(); save(); }
         });
 
         document.getElementById('autoBtn').addEventListener('click', () => {
-            if (score >= autoCost) {
-                score -= autoCost; autoPower++; autoCost *= 2;
-                updateUI(); save();
-                tg.showAlert("Robot sotib olindi!");
-            }
+            if (score >= autoCost) { score -= autoCost; autoPower++; autoCost *= 2; updateUI(); save(); }
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
             const link = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing! Bonus oling!`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 5,000 ball bonus oling!`);
         });
 
         function showTap(e) {
-            const area = document.getElementById('clickArea');
-            const num = document.createElement('div');
-            num.className = 'tap-number';
-            num.innerText = `+${clickPower}`;
+            const area = document.getElementById('clickArea'); const num = document.createElement('div');
+            num.className = 'tap-number'; num.innerText = `+${clickPower}`;
             const rect = area.getBoundingClientRect();
             num.style.left = (e.touches[0].clientX - rect.left) + 'px';
             num.style.top = (e.touches[0].clientY - rect.top) + 'px';
-            area.appendChild(num);
-            setTimeout(() => num.remove(), 800);
+            area.appendChild(num); setTimeout(() => num.remove(), 800);
         }
 
-        async function save() { 
-            if (userId !== "guest") {
-                await updateDoc(doc(db, "players", userId), { 
-                    score, clickPower, upgradeCost, autoPower, autoCost 
-                }).catch(async () => {
-                    // Agar xatolik bo'lsa (hujjat yaratilmagan bo'lsa), qayta yaratadi
-                    await setDoc(doc(db, "players", userId), { 
-                        name: userName, score, clickPower, upgradeCost, autoPower, autoCost, lastDaily: 0 
-                    }, { merge: true });
-                });
-            }
-        }
+        async function save() { if (userId !== "guest") await updateDoc(doc(db, "players", userId), { score, clickPower, upgradeCost, autoPower, autoCost }).catch(() => {}); }
         
-        setInterval(() => {
-            if (autoPower > 0) { score += autoPower; updateUI(); }
-            if (energy < 100) { energy++; updateUI(); }
-        }, 1000);
+        setInterval(() => { if (autoPower > 0) { score += autoPower; updateUI(); } if (energy < 100) { energy++; updateUI(); } }, 1000);
 
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(15)), (snap) => {
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = ""; let r = 1;
+            const list = document.getElementById('leaderboard-list'); list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
                 if (d.data().name && !d.data().name.includes("Mehmon")) {
-                    list.innerHTML += `<div class="player-item">
-                        <span><span class="rank-num">${r}</span> ${d.data().name}</span>
-                        <span>💰 ${Math.floor(d.data().score).toLocaleString()}</span>
-                    </div>`;
+                    list.innerHTML += `<div class="player-item"><span><span class="rank-num">${r}</span> ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
                     r++;
                 }
             });
