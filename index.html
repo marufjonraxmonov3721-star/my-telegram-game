@@ -3,72 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Games RM Elite Clicker</title>
+    <title>Games RM Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
             height: 100vh; background: #0b0b0e; color: white; font-family: 'Segoe UI', sans-serif;
-            overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
+            overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
-        .header { margin-top: 20px; text-align: center; width: 100%; }
-        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
-        .league-badge { 
-            background: linear-gradient(45deg, #ffd700, #b8860b); color: black; 
-            padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; 
-            margin-bottom: 8px; display: inline-block; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
-        }
-        
-        .energy-container { width: 85%; height: 10px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.3s; }
 
-        .click-area { position: relative; margin: 20px 0; }
+        /* Sahifalar boshqaruvi */
+        .page { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; overflow-y: auto; height: calc(100vh - 70px); }
+        .active-page { display: flex; }
+
+        /* Header qismi */
+        .header { text-align: center; width: 100%; margin-bottom: 10px; }
+        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
+        .league-badge { background: #f1c40f; color: black; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+
+        /* Clicker qismi */
+        .energy-container { width: 80%; height: 10px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        #energy-bar { width: 100%; height: 100%; background: #f1c40f; transition: width 0.3s; }
+        .click-area { position: relative; margin: 30px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
-        .click-btn img { width: 180px; filter: drop-shadow(0 0 25px rgba(241, 196, 15, 0.3)); }
-        .click-btn:active { transform: scale(0.93); }
+        .click-btn img { width: 220px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
+        .click-btn:active { transform: scale(0.95); }
 
-        .tap-number { position: absolute; color: #f1c40f; font-size: 1.6rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-110px); } }
+        /* Menyular va Tugmalar */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; margin-top: 10px; }
+        .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin-top: 10px; }
-        .btn-action { 
-            background: #1a1a20; border: 1px solid #333; color: white; padding: 12px; 
-            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; 
-            transition: 0.2s;
+        /* Leaderboard va Ro'yxatlar */
+        .section-box { width: 90%; background: #16161a; border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; }
+        .player-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 1rem; }
+        .rank-num { color: #888; margin-right: 10px; font-weight: normal; }
+
+        /* Pastki Navigatsiya (Play Market uslubida) */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a;
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #333; z-index: 100;
         }
-        .btn-action:active { background: #222; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: #f1c40f; }
+        .nav-item span { font-size: 0.75rem; margin-top: 4px; }
 
-        .section-box { width: 90%; background: #16161a; border-radius: 15px; margin-top: 20px; padding: 15px; border: 1px solid #222; box-sizing: border-box; margin-bottom: 40px; }
-        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        /* Animatsiyalar */
+        .tap-number { position: absolute; color: #f1c40f; font-size: 1.8rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div id="league-name" class="league-badge">Bronze League</div><br>
-        <div id="user-name" style="font-size: 0.95rem; color: #aaa;">Yuklanmoqda...</div>
-        <div class="score-display">💰 <span id="score">0</span></div>
-        <div style="font-size: 0.8rem; color: #777; margin-top: 5px;">
-            Energia: <span id="energy-text">100</span>/100 | 🤖 <span id="auto-rate">0</span>/sek
+    <div id="game-page" class="page active-page">
+        <div class="header">
+            <div id="league-name" class="league-badge">Bronze League</div>
+            <div class="score-display">💰 <span id="score">0</span></div>
+            <div style="font-size: 0.8rem; color: #888;">Energia: <span id="energy-text">100</span>/100 | 🤖 <span id="auto-rate">0</span>/s</div>
+        </div>
+        <div class="energy-container"><div id="energy-bar"></div></div>
+        <div class="click-area" id="clickArea">
+            <button class="click-btn" id="clickBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
+        </div>
+        <div class="menu-grid">
+            <button class="btn-action" id="upgradeBtn" style="background:#27ae60; border:none;">🚀 Upgrade</button>
+            <button class="btn-action" id="autoBtn">🤖 Robot</button>
         </div>
     </div>
 
-    <div class="energy-container"><div id="energy-bar"></div></div>
-
-    <div class="click-area" id="clickArea">
-        <button class="click-btn" id="clickBtn"><img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png"></button>
+    <div id="top-page" class="page">
+        <h2 style="color: #f1c40f;">🏆 Top O'yinchilar</h2>
+        <div class="section-box" id="leaderboard-list">Yuklanmoqda...</div>
     </div>
 
-    <div class="menu-grid">
-        <button class="btn-action" id="upgradeBtn" style="background:#27ae60; border:none; color: white;">🚀 Upgrade (100)</button>
-        <button class="btn-action" id="autoBtn">🤖 Robot (500)</button>
-        <button class="btn-action" id="dailyBtn">🎁 Bonus</button>
-        <button class="btn-action" id="refBtn">👥 Referal</button>
+    <div id="friends-page" class="page">
+        <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
+        <p style="text-align:center; color:#888; padding: 0 20px;">Har bir taklif qilingan do'st uchun 5,000 ball oling!</p>
+        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Do'stlarni taklif qilish</button>
+        <button class="btn-action" id="dailyBtn" style="width: 80%; margin-top: 15px;">🎁 Kunlik Bonus</button>
     </div>
 
-    <div class="section-box">
-        <h4 style="margin:0 0 10px 0; color:#f1c40f; text-align: center;">🏆 Top O'yinchilar</h4>
-        <div id="leaderboard-list">Yuklanmoqda...</div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('game-page', this)">
+            <i class="material-icons">touch_app</i>
+            <span>O'yin</span>
+        </div>
+        <div class="nav-item" onclick="showPage('top-page', this)">
+            <i class="material-icons">leaderboard</i>
+            <span>Top</span>
+        </div>
+        <div class="nav-item" onclick="showPage('friends-page', this)">
+            <i class="material-icons">group</i>
+            <span>Do'stlar</span>
+        </div>
     </div>
 
     <script type="module">
@@ -91,7 +119,16 @@
 
         let score = 0, energy = 100, clickPower = 1, upgradeCost = 100, autoPower = 0, autoCost = 500;
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
-        const userName = tg.initDataUnsafe?.user?.first_name || "Mehmon";
+        const userName = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
+
+        // SAHIFA ALMASHTIRISH
+        window.showPage = function(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active-page');
+            element.classList.add('active');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        };
 
         async function initGame() {
             if (userId === "guest") return;
@@ -111,7 +148,6 @@
                 autoPower = data.autoPower || 0;
                 autoCost = data.autoCost || 500;
             }
-            document.getElementById('user-name').innerText = userName;
             updateUI();
         }
 
@@ -134,7 +170,7 @@
             if (energy >= 1) {
                 score += clickPower; energy -= 1;
                 showTap(e); updateUI(); save();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             }
         });
 
@@ -149,7 +185,7 @@
             if (score >= autoCost) {
                 score -= autoCost; autoPower++; autoCost *= 2;
                 updateUI(); save();
-                tg.showAlert("Robot sotib olindi! Avtomatik ball yig'ish boshlandi.");
+                tg.showAlert("Robot sotib olindi!");
             }
         });
 
@@ -159,9 +195,9 @@
             if (Date.now() - (data.lastDaily || 0) > 86400000) {
                 score += 1000;
                 await setDoc(userRef, { lastDaily: Date.now(), score: score }, { merge: true });
-                tg.showAlert("1000 ball kunlik bonus berildi!");
+                tg.showAlert("1,000 ball bonus berildi!");
                 updateUI();
-            } else tg.showAlert("Kunlik bonus olingan. Ertaga qaytib keling!");
+            } else tg.showAlert("Ertaga qaytib keling!");
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
@@ -188,12 +224,15 @@
             if (energy < 100) { energy++; updateUI(); }
         }, 1000);
 
-        onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
+        onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(15)), (snap) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
                 if (!d.data().name.includes("Mehmon")) {
-                    list.innerHTML += `<div class="player-item"><span><b>#${r}</b> ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
+                    list.innerHTML += `<div class="player-item">
+                        <span><span class="rank-num">${r}</span> ${d.data().name}</span>
+                        <span>💰 ${Math.floor(d.data().score).toLocaleString()}</span>
+                    </div>`;
                     r++;
                 }
             });
