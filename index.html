@@ -7,134 +7,179 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --gold: #ffd700; --red: #ff4d4d; --bg: #0d1117; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Poppins', sans-serif; overflow: hidden; }
+        :root { --gold: #ffd700; --red: #ff4d4d; --bg: #05070a; --card: #12161d; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        .header { padding: 15px; background: #161b22; display: flex; justify-content: space-around; border-bottom: 2px solid #30363d; }
+        .header { padding: 15px; background: var(--card); display: flex; justify-content: space-around; border-bottom: 2px solid #21262d; }
         .res-box { text-align: center; }
-        .res-box span { display: block; font-size: 0.7rem; color: #8b949e; }
-        .res-box b { font-size: 1.1rem; color: var(--gold); }
+        .res-box span { display: block; font-size: 0.7rem; color: #8b949e; text-transform: uppercase; }
+        .res-box b { font-size: 1.2rem; color: var(--gold); }
 
-        .map-container { height: 65vh; display: flex; align-items: center; justify-content: center; position: relative; }
-        .base-circle { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, #238636, #2ea043); border: 5px solid #3fb950; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(46, 160, 67, 0.4); animation: pulse 2s infinite; }
+        .page { display: none; padding: 20px; height: calc(100vh - 150px); overflow-y: auto; }
+        .active-page { display: flex; flex-direction: column; align-items: center; }
+
+        /* Baza Animatsiyasi */
+        .base-container { height: 50vh; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; }
+        .base-core { width: 160px; height: 160px; border-radius: 40px; background: linear-gradient(135deg, #238636, #2ea043); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(46, 160, 67, 0.3); border: 4px solid #3fb950; transform: rotate(45deg); }
+        .base-core i { transform: rotate(-45deg); font-size: 4rem; }
+
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; padding: 10px; }
+        .btn { background: var(--card); border: 1px solid #30363d; color: white; padding: 15px; border-radius: 15px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn-attack { background: var(--red); border: none; grid-column: span 2; flex-direction: row; justify-content: center; gap: 10px; font-size: 1.2rem; }
+
+        .item-list { width: 100%; background: var(--card); border-radius: 20px; padding: 10px; border: 1px solid #222; }
+        .player-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #222; }
         
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .btn { background: #21262d; border: 1px solid #30363d; color: white; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-attack { background: var(--red); border: none; }
-
-        .page { display: none; padding: 20px; height: 80vh; overflow-y: auto; }
-        .active-page { display: block; }
-
-        .leaderboard-item { display: flex; justify-content: space-between; padding: 12px; background: #161b22; margin-bottom: 8px; border-radius: 10px; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; }
+        .nav-item { color: #555; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; }
+        .nav-item.active { color: var(--gold); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="res-box"><span>OLTIN</span><b id="gold-val">0</b></div>
-        <div class="res-box"><span>DAROMLAD</span><b>+<span id="prod-val">10</span>/s</b></div>
-        <div class="res-box"><span>ASKARLAR</span><b id="army-val">50</b></div>
+        <div class="res-box"><span>Oltin</span><b id="gold">0</b></div>
+        <div class="res-box"><span>Zavod</span><b>+<span id="prod">0</span>/s</b></div>
+        <div class="res-box"><span>Armiya</span><b id="army">0</b></div>
     </div>
 
-    <div id="p1" class="page active-page">
-        <div class="map-container">
-            <div class="base-circle">
-                <i class="material-icons" style="font-size: 3rem;">fort</i>
-                <span>SIZNING BAZANGIZ</span>
-            </div>
+    <div id="main-page" class="page active-page">
+        <div class="base-container">
+            <div class="base-core"><i class="material-icons">castle</i></div>
         </div>
-        <div class="btn-group">
-            <button class="btn" onclick="upgradeProduction()"><i class="material-icons">trending_up</i>Zavod</button>
-            <button class="btn" onclick="trainArmy()"><i class="material-icons">group_add</i>Armiya</button>
-            <button class="btn btn-attack" onclick="show('p2')"><i class="material-icons">flash_on</i>HUJUM</button>
-            <button class="btn" onclick="show('p3')"><i class="material-icons">emoji_events</i>TOP</button>
+        <div class="btn-grid">
+            <button class="btn" onclick="upgrade('prod')"><i class="material-icons">factory</i>Zavod (+2/s)<br><small id="p-cost">100</small></button>
+            <button class="btn" onclick="upgrade('army')"><i class="material-icons">security</i>Armiya (+10)<br><small id="a-cost">150</small></button>
+            <button class="btn btn-attack" onclick="showPage('war-page')"><i class="material-icons">rocket_launch</i>URUSHGA KIRISH</button>
         </div>
     </div>
 
-    <div id="p3" class="page">
-        <h2 style="color: var(--gold);"><i class="material-icons">emoji_events</i> Dunyo Reytingi</h2>
-        <div id="leaderboard-list">
-            </div>
-        <button class="btn" onclick="show('p1')" style="width: 100%; margin-top: 20px;">Orqaga</button>
+    <div id="war-page" class="page">
+        <h2 style="color: var(--red);">RAQIBLAR</h2>
+        <div class="item-list" id="enemy-list">Yuklanmoqda...</div>
     </div>
 
-    <div id="p2" class="page">
-        <h2><i class="material-icons">search</i> Qurbon qidirish</h2>
-        <p style="color: #8b949e;">Atrofingizdagi bazalarga hujum qilib oltinlarini oling!</p>
-        <div id="attack-list">
-            </div>
-        <button class="btn" onclick="show('p1')" style="width: 100%; margin-top: 20px;">Orqaga</button>
+    <div id="top-page" class="page">
+        <h2 style="color: var(--gold);">DUNYO REYTINGI</h2>
+        <div class="item-list" id="leaderboard">Yuklanmoqda...</div>
     </div>
 
-    <script>
+    <nav class="nav">
+        <div class="nav-item active" onclick="showPage('main-page', this)"><i class="material-icons">home</i>Baza</div>
+        <div class="nav-item" onclick="showPage('war-page', this)"><i class="material-icons">shield</i>Urush</div>
+        <div class="nav-item" onclick="showPage('top-page', this)"><i class="material-icons">emoji_events</i>Top</div>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const conf = {
+            apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
+            authDomain: "ilova-79e22.firebaseapp.com",
+            projectId: "ilova-79e22",
+            storageBucket: "ilova-79e22.firebasestorage.app",
+            messagingSenderId: "1084364864104",
+            appId: "1:1084364864104:web:4c12398e4dd6e5978ad9dd"
+        };
+
+        const app = initializeApp(conf);
+        const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
-        let gold = 100, production = 5, army = 20;
+        tg.expand();
+
+        let userData = { gold: 200, prod: 2, army: 50, pCost: 100, aCost: 150 };
+        const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest";
+        const uname = tg.initDataUnsafe?.user?.first_name || "Lider";
+
+        async function init() {
+            const snap = await getDoc(doc(db, "empire", uid));
+            if (!snap.exists()) {
+                await setDoc(doc(db, "empire", uid), { name: uname, ...userData });
+            } else {
+                userData = snap.data();
+            }
+            updateUI();
+            startProduction();
+        }
 
         function updateUI() {
-            document.getElementById('gold-val').innerText = Math.floor(gold).toLocaleString();
-            document.getElementById('prod-val').innerText = production;
-            document.getElementById('army-val').innerText = army;
+            document.getElementById('gold').innerText = Math.floor(userData.gold).toLocaleString();
+            document.getElementById('prod').innerText = userData.prod;
+            document.getElementById('army').innerText = userData.army;
+            document.getElementById('p-cost').innerText = userData.pCost;
+            document.getElementById('a-cost').innerText = userData.aCost;
         }
 
-        function show(id) {
+        window.upgrade = async (type) => {
+            if (type === 'prod' && userData.gold >= userData.pCost) {
+                userData.gold -= userData.pCost; userData.prod += 2; userData.pCost *= 2;
+            } else if (type === 'army' && userData.gold >= userData.aCost) {
+                userData.gold -= userData.aCost; userData.army += 20; userData.aCost *= 2;
+            } else {
+                return tg.showAlert("Oltin yetarli emas!");
+            }
+            updateUI();
+            await updateDoc(doc(db, "empire", uid), userData);
+        };
+
+        window.showPage = (id, el) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.getElementById(id).classList.add('active-page');
-            if(id === 'p3') loadLeaderboard();
-            if(id === 'p2') loadEnemies();
-        }
-
-        function upgradeProduction() {
-            if(gold >= 50) { gold -= 50; production += 2; updateUI(); }
-            else { tg.showAlert("Oltin yetarli emas!"); }
-        }
-
-        function trainArmy() {
-            if(gold >= 30) { gold -= 30; army += 10; updateUI(); }
-            else { tg.showAlert("Oltin yetarli emas!"); }
-        }
-
-        function loadLeaderboard() {
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = `
-                <div class="leaderboard-item"><span>1. Sardor_King</span><b>💰 1.2M</b></div>
-                <div class="leaderboard-item"><span>2. Bek_Empire</span><b>💰 950K</b></div>
-                <div class="leaderboard-item"><span>3. RM_Warrior</span><b>💰 800K</b></div>
-            `;
-        }
-
-        function loadEnemies() {
-            const list = document.getElementById('attack-list');
-            list.innerHTML = `
-                <div class="leaderboard-item"><span>O'yinchi_882</span><button class="btn btn-attack" style="padding:5px 10px;" onclick="attack()">Hujum</button></div>
-                <div class="leaderboard-item"><span>Noob_Master</span><button class="btn btn-attack" style="padding:5px 10px;" onclick="attack()">Hujum</button></div>
-            `;
-        }
-
-        function attack() {
-            if(army > 10) {
-                let win = Math.random() > 0.5;
-                if(win) {
-                    let prize = Math.floor(Math.random() * 200);
-                    gold += prize;
-                    tg.showAlert("G'alaba! Siz " + prize + " oltin o'g'irladingiz!");
-                } else {
-                    army -= 10;
-                    tg.showAlert("Mag'lubiyat! Armiyangiz talofat ko'rdi.");
-                }
-                updateUI();
-            } else {
-                tg.showAlert("Armiyangiz juda kuchsiz!");
+            if (el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
             }
+        };
+
+        function startProduction() {
+            setInterval(async () => {
+                userData.gold += (userData.prod / 10);
+                updateUI();
+                if (Math.random() > 0.9) await updateDoc(doc(db, "empire", uid), { gold: userData.gold });
+            }, 1000);
         }
 
-        setInterval(() => {
-            gold += (production / 10);
-            updateUI();
-        }, 100);
+        // Leaderboard & Attack System
+        onSnapshot(query(collection(db, "empire"), orderBy("gold", "desc"), limit(20)), (snap) => {
+            const lb = document.getElementById('leaderboard');
+            const el = document.getElementById('enemy-list');
+            lb.innerHTML = ""; el.innerHTML = "";
+            
+            snap.forEach(d => {
+                const p = d.data();
+                if(d.id !== uid) {
+                    el.innerHTML += `<div class="player-row">
+                        <span>${p.name} (🎖${p.army})</span>
+                        <button class="btn" style="padding:5px 15px; background:var(--red);" onclick="attack('${d.id}', ${p.army})">HUJUM</button>
+                    </div>`;
+                }
+                lb.innerHTML += `<div class="player-row"><span>${p.name}</span><b>💰 ${Math.floor(p.gold).toLocaleString()}</b></div>`;
+            });
+        });
 
-        tg.expand();
+        window.attack = async (targetId, targetArmy) => {
+            if (userData.army < 20) return tg.showAlert("Armiyangiz juda kuchsiz!");
+            
+            tg.showConfirm("Hujum qilmoqchimisiz? G'alaba qozonsangiz 20% oltinini olasiz!", async (ok) => {
+                if (ok) {
+                    if (userData.army > targetArmy) {
+                        const prize = 500; // Soddalashtirilgan sovrin
+                        userData.gold += prize;
+                        userData.army -= 10;
+                        await updateDoc(doc(db, "empire", uid), userData);
+                        tg.showAlert("G'alaba! Siz bazani tor-mor qildingiz.");
+                    } else {
+                        userData.army = Math.floor(userData.army / 2);
+                        await updateDoc(doc(db, "empire", uid), userData);
+                        tg.showAlert("Mag'lubiyat! Armiyangiz qirilib ketdi.");
+                    }
+                    updateUI();
+                }
+            });
+        };
+
+        init();
     </script>
 </body>
 </html>
