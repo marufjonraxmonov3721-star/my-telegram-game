@@ -30,8 +30,6 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; }
         .nav-item.active { color: #f1c40f; }
         .nav-item span { font-size: 0.75rem; margin-top: 4px; }
-        .tap-number { position: absolute; color: #f1c40f; font-size: 1.8rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
 <body>
@@ -39,9 +37,9 @@
     <div id="bonus-modal">
         <div class="modal-content">
             <div style="font-size: 4rem;">🎁</div>
-            <h2 style="color:#f1c40f">KUNDLIK BONUS!</h2>
-            <div style="font-size: 2.5rem; font-weight: bold; margin: 15px 0;">💰 1,000</div>
-            <button class="modal-btn" onclick="claimDailyBonus()">QABUL QILISH</button>
+            <h2 id="modal-title" style="color:#f1c40f">KUNDLIK BONUS!</h2>
+            <div id="modal-amount" style="font-size: 2.5rem; font-weight: bold; margin: 15px 0;">💰 1,000</div>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
         </div>
     </div>
 
@@ -68,7 +66,7 @@
 
     <div id="friends-page" class="page">
         <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
-        <p style="text-align:center; color:#888; padding: 0 20px;">Havolangizni do'stlaringizga yuboring va 5,000 ball oling!</p>
+        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz START bossa, 5,000 ball olasiz!</p>
         <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Do'stlarni taklif qilish</button>
     </div>
 
@@ -80,7 +78,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
@@ -107,43 +105,69 @@
             el.classList.add('active');
         };
 
+        window.closeModal = function() {
+            document.getElementById('bonus-modal').style.display = 'none';
+        };
+
         async function initGame() {
             if (userId === "guest") return;
             const userRef = doc(db, "players", userId);
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                // YANGI FOYDALANUVCHI - REFERAL TEKSHIRISH
+                // YANGI O'YINCHI
                 const inviterId = tg.initDataUnsafe.start_param;
-                
-                if (inviterId && inviterId !== userId) {
-                    try {
-                        const inviterRef = doc(db, "players", inviterId);
-                        await updateDoc(inviterRef, { score: increment(5000) });
-                        console.log("Referal muvaffaqiyatli!");
-                    } catch (e) {
-                        console.error("Referal xatosi:", e);
-                    }
-                }
-
-                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
-                document.getElementById('bonus-modal').style.display = 'flex';
+                await setDoc(userRef, { 
+                    name: userName, score: 0, clickPower: 1, upgradeCost: 100, 
+                    autoPower: 0, autoCost: 500, lastDaily: 0,
+                    invitedBy: inviterId || null,
+                    refClaimed: false
+                });
+                showModal("XUSH KELIBSIZ!", "💰 1,000");
+                score = 1000;
+                await updateDoc(userRef, { score: 1000, lastDaily: Date.now() });
             } else {
                 const data = docSnap.data();
-                score = data.score || 0; clickPower = data.clickPower || 1;
-                upgradeCost = data.upgradeCost || 100; autoPower = data.autoPower || 0;
+                score = data.score || 0;
+                clickPower = data.clickPower || 1;
+                upgradeCost = data.upgradeCost || 100;
+                autoPower = data.autoPower || 0;
                 autoCost = data.autoCost || 500;
-                if (Date.now() - (data.lastDaily || 0) > 86400000) document.getElementById('bonus-modal').style.display = 'flex';
+
+                // REFERAL TEKSHIRISH (Taklif qilgan odam uchun)
+                // Bu qism taklif qilgan odam o'yinga kirganida ishlaydi
+                const q = query(collection(db, "players"));
+                onSnapshot(q, (snapshot) => {
+                    snapshot.docChanges().forEach(async (change) => {
+                        if (change.type === "added") {
+                            const newUser = change.doc.data();
+                            if (newUser.invitedBy === userId && newUser.refClaimed === false) {
+                                // Yangi odam keldi!
+                                score += 5000;
+                                await updateDoc(userRef, { score: increment(5000) });
+                                // Yangi odamni belgilab qo'yamiz (ball berildi deb)
+                                await updateDoc(doc(db, "players", change.doc.id), { refClaimed: true });
+                                tg.showPopup({ title: 'Bonus!', message: 'Do\'stingiz uchun +5000 ball!' });
+                                updateUI();
+                            }
+                        }
+                    });
+                });
+
+                if (Date.now() - (data.lastDaily || 0) > 86400000) {
+                    showModal("KUNDLIK BONUS!", "💰 1,000");
+                    score += 1000;
+                    await updateDoc(userRef, { score: increment(1000), lastDaily: Date.now() });
+                }
             }
             updateUI();
         }
 
-        window.claimDailyBonus = async function() {
-            score += 1000;
-            await updateDoc(doc(db, "players", userId), { lastDaily: Date.now(), score: score });
-            document.getElementById('bonus-modal').style.display = 'none';
-            updateUI();
-        };
+        function showModal(title, amount) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-amount').innerText = amount;
+            document.getElementById('bonus-modal').style.display = 'flex';
+        }
 
         function updateUI() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
@@ -158,7 +182,7 @@
         }
 
         document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
-            if (energy >= 1) { score += clickPower; energy -= 1; showTap(e); updateUI(); save(); if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); }
+            if (energy >= 1) { score += clickPower; energy -= 1; updateUI(); save(); if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium'); }
         });
 
         document.getElementById('upgradeBtn').addEventListener('click', () => {
@@ -171,17 +195,8 @@
 
         document.getElementById('refBtn').addEventListener('click', () => {
             const link = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing va 5,000 ball bonus oling!`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 5,000 ball bonus oling!`);
         });
-
-        function showTap(e) {
-            const area = document.getElementById('clickArea'); const num = document.createElement('div');
-            num.className = 'tap-number'; num.innerText = `+${clickPower}`;
-            const rect = area.getBoundingClientRect();
-            num.style.left = (e.touches[0].clientX - rect.left) + 'px';
-            num.style.top = (e.touches[0].clientY - rect.top) + 'px';
-            area.appendChild(num); setTimeout(() => num.remove(), 800);
-        }
 
         async function save() { if (userId !== "guest") await updateDoc(doc(db, "players", userId), { score, clickPower, upgradeCost, autoPower, autoCost }).catch(() => {}); }
         
