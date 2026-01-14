@@ -3,122 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crypto Millionaire RM</title>
+    <title>Empire Conquest RM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --main-gold: #ffcc00; --bg-dark: #08080a; --card-bg: #14141a; }
-        body { margin: 0; background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; overflow: hidden; user-select: none; }
+        :root { --gold: #ffd700; --red: #ff4d4d; --bg: #0d1117; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Poppins', sans-serif; overflow: hidden; }
         
-        .header { padding: 20px; text-align: center; background: linear-gradient(to bottom, #1a1a20, var(--bg-dark)); }
-        .balance-box { font-size: 3.5rem; font-weight: 800; color: var(--main-gold); text-shadow: 0 0 20px rgba(255, 204, 0, 0.4); }
+        .header { padding: 15px; background: #161b22; display: flex; justify-content: space-around; border-bottom: 2px solid #30363d; }
+        .res-box { text-align: center; }
+        .res-box span { display: block; font-size: 0.7rem; color: #8b949e; }
+        .res-box b { font-size: 1.1rem; color: var(--gold); }
+
+        .map-container { height: 65vh; display: flex; align-items: center; justify-content: center; position: relative; }
+        .base-circle { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, #238636, #2ea043); border: 5px solid #3fb950; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(46, 160, 67, 0.4); animation: pulse 2s infinite; }
         
-        .main-game { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; }
-        .coin-btn { width: 240px; height: 240px; background: url('https://cdn-icons-png.flaticon.com/512/2585/2585040.png') no-repeat center; background-size: contain; border: none; outline: none; transition: transform 0.1s; cursor: pointer; }
-        .coin-btn:active { transform: scale(0.9); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin: 0 auto; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 15px; border: 1px solid #222; text-align: center; }
-        .stat-card span { display: block; color: #888; font-size: 0.8rem; }
-        .stat-card b { font-size: 1.1rem; color: #fff; }
-
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; }
-        .nav-item { color: #555; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; text-decoration: none; }
-        .nav-item.active { color: var(--main-gold); }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .btn { background: #21262d; border: 1px solid #30363d; color: white; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-attack { background: var(--red); border: none; }
 
         .page { display: none; padding: 20px; height: 80vh; overflow-y: auto; }
         .active-page { display: block; }
 
-        .buy-btn { background: var(--main-gold); color: black; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 12px; background: #161b22; margin-bottom: 8px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="game" class="page active-page">
-        <div class="header">
-            <span>Sizning Boyligingiz:</span>
-            <div class="balance-box" id="balance">0</div>
-            <div style="color:#00ff00; font-size:0.9rem;">+<span id="per-sec">0</span>/sekuniga (Avto)</div>
-        </div>
+    <div class="header">
+        <div class="res-box"><span>OLTIN</span><b id="gold-val">0</b></div>
+        <div class="res-box"><span>DAROMLAD</span><b>+<span id="prod-val">10</span>/s</b></div>
+        <div class="res-box"><span>ASKARLAR</span><b id="army-val">50</b></div>
+    </div>
 
-        <div class="main-game">
-            <button class="coin-btn" onclick="tap(event)"></button>
+    <div id="p1" class="page active-page">
+        <div class="map-container">
+            <div class="base-circle">
+                <i class="material-icons" style="font-size: 3rem;">fort</i>
+                <span>SIZNING BAZANGIZ</span>
+            </div>
         </div>
-
-        <div class="stat-grid">
-            <div class="stat-card"><span>Tap kuchi</span><b id="tap-val">1</b></div>
-            <div class="stat-card"><span>Energiya</span><b id="energy">1000</b></div>
+        <div class="btn-group">
+            <button class="btn" onclick="upgradeProduction()"><i class="material-icons">trending_up</i>Zavod</button>
+            <button class="btn" onclick="trainArmy()"><i class="material-icons">group_add</i>Armiya</button>
+            <button class="btn btn-attack" onclick="show('p2')"><i class="material-icons">flash_on</i>HUJUM</button>
+            <button class="btn" onclick="show('p3')"><i class="material-icons">emoji_events</i>TOP</button>
         </div>
     </div>
 
-    <div id="shop" class="page">
-        <h2>Fermani Kuchaytirish</h2>
-        <div class="stat-card" style="margin-bottom:15px;">
-            <h3>Video Karta (RTX 4090)</h3>
-            <p>Har sekunda +5 ball keltiradi</p>
-            <button class="buy-btn" onclick="buyGPU()">Sotib olish (1,500)</button>
-        </div>
-        <div class="stat-card">
-            <h3>Mining hovuzi</h3>
-            <p>Har bir tap +2 ball qo'shadi</p>
-            <button class="buy-btn" onclick="buyTap()">Sotib olish (2,000)</button>
-        </div>
+    <div id="p3" class="page">
+        <h2 style="color: var(--gold);"><i class="material-icons">emoji_events</i> Dunyo Reytingi</h2>
+        <div id="leaderboard-list">
+            </div>
+        <button class="btn" onclick="show('p1')" style="width: 100%; margin-top: 20px;">Orqaga</button>
     </div>
 
-    <div id="tasks" class="page">
-        <h2>Pul ishlash (Tasks)</h2>
-        <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Telegram kanalga a'zo bo'ling</span>
-            <button onclick="window.open('https://t.me/kanal_nomi')" class="buy-btn" style="width:auto; margin:0;">5,000 bonus</button>
-        </div>
+    <div id="p2" class="page">
+        <h2><i class="material-icons">search</i> Qurbon qidirish</h2>
+        <p style="color: #8b949e;">Atrofingizdagi bazalarga hujum qilib oltinlarini oling!</p>
+        <div id="attack-list">
+            </div>
+        <button class="btn" onclick="show('p1')" style="width: 100%; margin-top: 20px;">Orqaga</button>
     </div>
-
-    <nav class="nav">
-        <div class="nav-item active" onclick="show('game', this)"><i class="material-icons">monetization_on</i>O'yin</div>
-        <div class="nav-item" onclick="show('shop', this)"><i class="material-icons">shopping_cart</i>Do'kon</div>
-        <div class="nav-item" onclick="show('tasks', this)"><i class="material-icons">bolt</i>Vazifalar</div>
-    </nav>
 
     <script>
-        let balance = 0, tapPower = 1, autoPower = 0, energy = 1000;
         const tg = window.Telegram.WebApp;
+        let gold = 100, production = 5, army = 20;
 
-        function tap(e) {
-            if (energy > 0) {
-                balance += tapPower;
-                energy -= 1;
+        function updateUI() {
+            document.getElementById('gold-val').innerText = Math.floor(gold).toLocaleString();
+            document.getElementById('prod-val').innerText = production;
+            document.getElementById('army-val').innerText = army;
+        }
+
+        function show(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(id).classList.add('active-page');
+            if(id === 'p3') loadLeaderboard();
+            if(id === 'p2') loadEnemies();
+        }
+
+        function upgradeProduction() {
+            if(gold >= 50) { gold -= 50; production += 2; updateUI(); }
+            else { tg.showAlert("Oltin yetarli emas!"); }
+        }
+
+        function trainArmy() {
+            if(gold >= 30) { gold -= 30; army += 10; updateUI(); }
+            else { tg.showAlert("Oltin yetarli emas!"); }
+        }
+
+        function loadLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = `
+                <div class="leaderboard-item"><span>1. Sardor_King</span><b>💰 1.2M</b></div>
+                <div class="leaderboard-item"><span>2. Bek_Empire</span><b>💰 950K</b></div>
+                <div class="leaderboard-item"><span>3. RM_Warrior</span><b>💰 800K</b></div>
+            `;
+        }
+
+        function loadEnemies() {
+            const list = document.getElementById('attack-list');
+            list.innerHTML = `
+                <div class="leaderboard-item"><span>O'yinchi_882</span><button class="btn btn-attack" style="padding:5px 10px;" onclick="attack()">Hujum</button></div>
+                <div class="leaderboard-item"><span>Noob_Master</span><button class="btn btn-attack" style="padding:5px 10px;" onclick="attack()">Hujum</button></div>
+            `;
+        }
+
+        function attack() {
+            if(army > 10) {
+                let win = Math.random() > 0.5;
+                if(win) {
+                    let prize = Math.floor(Math.random() * 200);
+                    gold += prize;
+                    tg.showAlert("G'alaba! Siz " + prize + " oltin o'g'irladingiz!");
+                } else {
+                    army -= 10;
+                    tg.showAlert("Mag'lubiyat! Armiyangiz talofat ko'rdi.");
+                }
                 updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                tg.showAlert("Armiyangiz juda kuchsiz!");
             }
         }
 
-        function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('tap-val').innerText = tapPower;
-            document.getElementById('energy').innerText = energy;
-            document.getElementById('per-sec').innerText = autoPower;
-        }
-
-        function show(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active-page');
-            el.classList.add('active');
-        }
-
-        function buyGPU() {
-            if (balance >= 1500) { balance -= 1500; autoPower += 5; updateUI(); }
-        }
-
-        function buyTap() {
-            if (balance >= 2000) { balance -= 2000; tapPower += 2; updateUI(); }
-        }
-
         setInterval(() => {
-            balance += autoPower;
-            if (energy < 1000) energy += 2;
+            gold += (production / 10);
             updateUI();
-        }, 1000);
+        }, 100);
 
         tg.expand();
     </script>
