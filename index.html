@@ -68,8 +68,8 @@
 
     <div id="friends-page" class="page">
         <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
-        <p style="text-align:center; color:#888; padding: 0 20px;">Do'stingiz kelsa, sizga 5,000 ball beriladi!</p>
-        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Taklif qilish</button>
+        <p style="text-align:center; color:#888; padding: 0 20px;">Havolangizni do'stlaringizga yuboring va 5,000 ball oling!</p>
+        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Do'stlarni taklif qilish</button>
     </div>
 
     <div class="bottom-nav">
@@ -80,7 +80,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
@@ -113,16 +113,19 @@
             const docSnap = await getDoc(userRef);
 
             if (!docSnap.exists()) {
-                // 1. Birinchi bo'lib taklif qilganga ochko berish
-                const startParam = tg.initDataUnsafe.start_param;
-                if (startParam && startParam !== userId) {
+                // YANGI FOYDALANUVCHI - REFERAL TEKSHIRISH
+                const inviterId = tg.initDataUnsafe.start_param;
+                
+                if (inviterId && inviterId !== userId) {
                     try {
-                        const inviterRef = doc(db, "players", startParam);
+                        const inviterRef = doc(db, "players", inviterId);
                         await updateDoc(inviterRef, { score: increment(5000) });
-                    } catch (e) { console.log("Referal xatosi:", e); }
+                        console.log("Referal muvaffaqiyatli!");
+                    } catch (e) {
+                        console.error("Referal xatosi:", e);
+                    }
                 }
 
-                // 2. Keyin yangi foydalanuvchini yaratish
                 await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
                 document.getElementById('bonus-modal').style.display = 'flex';
             } else {
@@ -168,7 +171,7 @@
 
         document.getElementById('refBtn').addEventListener('click', () => {
             const link = `https://t.me/Games_RM_bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 5,000 ball bonus oling!`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=💰 Men bilan birga tanga yig'ing va 5,000 ball bonus oling!`);
         });
 
         function showTap(e) {
@@ -187,7 +190,7 @@
         onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(15)), (snap) => {
             const list = document.getElementById('leaderboard-list'); list.innerHTML = ""; let r = 1;
             snap.forEach(d => {
-                if (d.data().name && !d.data().name.includes("Mehmon")) {
+                if (d.data().name) {
                     list.innerHTML += `<div class="player-item"><span><span class="rank-num">${r}</span> ${d.data().name}</span><span>💰 ${Math.floor(d.data().score).toLocaleString()}</span></div>`;
                     r++;
                 }
