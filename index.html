@@ -3,81 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Telegram Pro Clicker</title>
+    <title>Telegram Mega Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            background: #1a1a1d;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            overflow-y: auto;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
+            height: 100vh; background: #0f0f12; color: white; font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
-
-        .header { margin-top: 20px; text-align: center; }
-        .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; }
+        .header { margin-top: 15px; text-align: center; z-index: 10; }
+        .score-display { font-size: 3.2rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
         
-        .energy-container {
-            width: 80%;
-            height: 12px;
-            background: #333;
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
+        .energy-container { width: 85%; height: 10px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f39c12, #f1c40f); transition: width 0.3s; }
+
+        .click-area { position: relative; margin: 20px 0; touch-action: manipulation; }
+        .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
+        .click-btn img { width: 200px; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.3)); }
+        .click-btn:active { transform: scale(0.95); }
+
+        /* Tap Animatsiyasi */
+        .tap-number {
+            position: absolute; color: #f1c40f; font-size: 1.5rem; font-weight: bold;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100;
         }
-        #energy-bar {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #e67e22, #f1c40f);
-            transition: width 0.2s;
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
 
-        .click-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.1s;
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; margin-top: 10px; }
+        .btn-action {
+            background: #1e1e24; border: 1px solid #333; color: white; padding: 12px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem;
         }
-        .click-btn img { width: 180px; filter: drop-shadow(0 0 15px rgba(241, 196, 15, 0.4)); }
-        .click-btn:active { transform: scale(0.92); }
-
-        .stats-row { display: flex; gap: 20px; margin-top: 10px; font-size: 0.9rem; color: #aaa; }
+        .btn-upgrade { background: #27ae60; border: none; }
 
         .leaderboard {
-            width: 90%;
-            background: #25252b;
-            border-radius: 15px;
-            margin-top: 30px;
-            padding: 15px;
-            margin-bottom: 50px;
+            width: 90%; background: #16161a; border-radius: 15px; margin-top: 25px;
+            padding: 15px; margin-bottom: 40px; border: 1px solid #222;
         }
-        .leaderboard h3 { margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .player-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #2d2d33;
-        }
-        .player-item:last-child { border: none; }
-        .rank { color: #f1c40f; font-weight: bold; margin-right: 10px; }
-
-        .shop { margin-top: 20px; }
-        #upgrade-btn {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .player-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
+        .rank { color: #f1c40f; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -85,32 +52,31 @@
     <div class="header">
         <div id="user-name">Yuklanmoqda...</div>
         <div class="score-display">💰 <span id="score">0</span></div>
-        <div class="stats-row">
-            <span>Klik kuchi: <b id="click-power">1</b></span>
-            <span>Energia: <span id="energy-text">100</span>/100</span>
-        </div>
+        <div style="font-size: 0.8rem; color: #888;">Energia: <span id="energy-text">100</span>/100</div>
     </div>
 
-    <div class="energy-container">
-        <div id="energy-bar"></div>
+    <div class="energy-container"><div id="energy-bar"></div></div>
+
+    <div class="click-area" id="clickArea">
+        <button class="click-btn" id="clickBtn">
+            <img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png" alt="Coin">
+        </button>
     </div>
 
-    <button class="click-btn" id="clickBtn">
-        <img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png" alt="Coin">
-    </button>
-
-    <div class="shop">
-        <button id="upgrade-btn">Upgrade (Narxi: 100)</button>
+    <div class="menu-grid">
+        <button class="btn-action btn-upgrade" id="upgradeBtn">🚀 Upgrade (100)</button>
+        <button class="btn-action" id="dailyBtn">🎁 Kunlik Bonus</button>
+        <button class="btn-action" style="grid-column: span 2;" id="refBtn">👥 Do'stlarni taklif qilish (+5000)</button>
     </div>
 
     <div class="leaderboard">
-        <h3>🏆 Top 10 O'yinchilar</h3>
+        <h3 style="margin:0 0 10px 0; font-size: 1rem;">🏆 Top 10 O'yinchilar</h3>
         <div id="leaderboard-list">Yuklanmoqda...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
@@ -124,118 +90,113 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
+        tg.expand();
 
-        let score = 0;
-        let energy = 100;
-        let clickPower = 1;
-        let upgradeCost = 100;
-        
-        // Telegram foydalanuvchisini aniqlash
+        let score = 0, energy = 100, clickPower = 1, upgradeCost = 100;
         const isTelegram = !!(tg.initDataUnsafe && tg.initDataUnsafe.user);
-        let userId = isTelegram ? tg.initDataUnsafe.user.id.toString() : "guest";
-        let userName = isTelegram ? tg.initDataUnsafe.user.first_name : "Mehmon (Brauzer)";
+        const userId = isTelegram ? tg.initDataUnsafe.user.id.toString() : "guest";
+        const userName = isTelegram ? tg.initDataUnsafe.user.first_name : "Mehmon";
+        const startParam = tg.initDataUnsafe.start_param; // Referal ID
 
-        const scoreEl = document.getElementById('score');
-        const energyBar = document.getElementById('energy-bar');
-        const energyText = document.getElementById('energy-text');
-        const clickPowerEl = document.getElementById('click-power');
-        const upgradeBtn = document.getElementById('upgrade-btn');
-        const nameEl = document.getElementById('user-name');
+        document.getElementById('user-name').innerText = userName;
 
-        nameEl.innerText = userName;
-
-        async function loadUserData() {
+        async function initGame() {
             if (!isTelegram) return;
-            const docSnap = await getDoc(doc(db, "players", userId));
-            if (docSnap.exists()) {
+            const userRef = doc(db, "players", userId);
+            const docSnap = await getDoc(userRef);
+
+            if (!docSnap.exists()) {
+                // Yangi foydalanuvchi
+                await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, lastDaily: 0 });
+                // Agar referal orqali kelgan bo'lsa
+                if (startParam && startParam !== userId) {
+                    const refRef = doc(db, "players", startParam);
+                    await setDoc(refRef, { score: increment(5000) }, { merge: true });
+                }
+            } else {
                 const data = docSnap.data();
                 score = data.score || 0;
                 clickPower = data.clickPower || 1;
                 upgradeCost = data.upgradeCost || 100;
-                updateUI();
             }
+            updateUI();
         }
 
         function updateUI() {
-            scoreEl.innerText = score;
-            clickPowerEl.innerText = clickPower;
-            energyText.innerText = energy;
-            energyBar.style.width = energy + "%";
-            upgradeBtn.innerText = `Upgrade (Narxi: ${upgradeCost})`;
+            document.getElementById('score').innerText = Math.floor(score);
+            document.getElementById('energy-text').innerText = energy;
+            document.getElementById('energy-bar').style.width = energy + "%";
+            document.getElementById('upgradeBtn').innerText = `🚀 Upgrade (${upgradeCost})`;
         }
 
-        async function saveToFirebase() {
-            // FAQAT Telegram foydalanuvchilari uchun bazaga saqlash
-            if (!isTelegram || userId === "guest") return;
-
-            try {
-                await setDoc(doc(db, "players", userId), {
-                    name: userName,
-                    score: score,
-                    clickPower: clickPower,
-                    upgradeCost: upgradeCost,
-                    lastUpdate: new Date()
-                }, { merge: true });
-            } catch (e) {
-                console.error("Saqlashda xato:", e);
-            }
+        // Tap Animatsiyasi funksiyasi
+        function showTapAnim(e) {
+            const clickArea = document.getElementById('clickArea');
+            const num = document.createElement('div');
+            num.className = 'tap-number';
+            num.innerText = `+${clickPower}`;
+            const rect = clickArea.getBoundingClientRect();
+            num.style.left = (e.clientX || e.touches[0].clientX) - rect.left + 'px';
+            num.style.top = (e.clientY || e.touches[0].clientY) - rect.top + 'px';
+            clickArea.appendChild(num);
+            setTimeout(() => num.remove(), 800);
         }
 
-        document.getElementById('clickBtn').addEventListener('click', () => {
+        document.getElementById('clickBtn').addEventListener('touchstart', (e) => {
             if (energy >= clickPower) {
-                score += clickPower;
-                energy -= 1;
-                updateUI();
-                saveToFirebase();
+                score += clickPower; energy -= 1;
+                showTapAnim(e); updateUI(); save();
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            } else {
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
             }
         });
 
-        upgradeBtn.addEventListener('click', () => {
+        document.getElementById('upgradeBtn').addEventListener('click', () => {
             if (score >= upgradeCost) {
-                score -= upgradeCost;
-                clickPower += 1;
-                upgradeCost *= 2;
-                updateUI();
-                saveToFirebase();
+                score -= upgradeCost; clickPower++; upgradeCost *= 2;
+                updateUI(); save();
             }
         });
 
-        setInterval(() => {
-            if (energy < 100) {
-                energy += 1;
+        document.getElementById('dailyBtn').addEventListener('click', async () => {
+            const userRef = doc(db, "players", userId);
+            const docSnap = await getDoc(userRef);
+            const lastDaily = docSnap.data().lastDaily || 0;
+            const now = Date.now();
+            if (now - lastDaily > 86400000) { // 24 soat
+                score += 1000;
+                await setDoc(userRef, { lastDaily: now, score: score }, { merge: true });
+                tg.showAlert("Tabriklaymiz! 1000 ball bonus berildi.");
                 updateUI();
+            } else {
+                tg.showAlert("Bugun bonus olgansiz. Ertaga qaytib keling!");
             }
-        }, 2000);
+        });
 
-        // Leaderboard (Mehmonlarni ko'rsatmaydi)
-        const q = query(collection(db, "players"), orderBy("score", "desc"), limit(20));
-        onSnapshot(q, (snapshot) => {
-            const listEl = document.getElementById('leaderboard-list');
-            listEl.innerHTML = "";
-            let rank = 1;
-            snapshot.forEach((doc) => {
-                const p = doc.data();
-                // Faqat Telegram foydalanuvchilarini jadvalga qo'shish
+        document.getElementById('refBtn').addEventListener('click', () => {
+            const botUsername = "SIZNING_BOT_USERNAMI"; // SHU YERGA BOT USERNAMINI YOZING (masalan: my_clicker_bot)
+            const refLink = `https://t.me/${botUsername}?start=${userId}`;
+            const shareText = `💰 Bu o'yinda ball to'plang va sovg'alarga ega bo'ling! Meni havola orqali kiring: ${refLink}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
+        });
+
+        async function save() { if (isTelegram) await setDoc(doc(db, "players", userId), { score, clickPower, upgradeCost }, { merge: true }); }
+
+        setInterval(() => { if (energy < 100) { energy++; updateUI(); } }, 1500);
+
+        // Leaderboard
+        onSnapshot(query(collection(db, "players"), orderBy("score", "desc"), limit(10)), (snap) => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = ""; let r = 1;
+            snap.forEach(d => {
+                const p = d.data();
                 if (p.name && !p.name.includes("Mehmon")) {
-                    if (rank <= 10) { // Faqat Top 10 ni chiqarish
-                        listEl.innerHTML += `
-                            <div class="player-item">
-                                <span><span class="rank">#${rank}</span> ${p.name}</span>
-                                <span>💰 ${p.score}</span>
-                            </div>
-                        `;
-                        rank++;
-                    }
+                    list.innerHTML += `<div class="player-item"><span><b class="rank">#${r}</b> ${p.name}</span><span>💰 ${p.score}</span></div>`;
+                    r++;
                 }
             });
         });
 
-        loadUserData();
-        tg.expand();
-        tg.ready();
+        initGame();
     </script>
 </body>
 </html>
