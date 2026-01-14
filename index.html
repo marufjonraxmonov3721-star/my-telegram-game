@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Clicker Game</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        /* --- CSS DIZAYN --- */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #2c3e50, #000000);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .game-container {
+            text-align: center;
+            width: 100%;
+        }
+
+        #user-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ecf0f1;
+        }
+
+        .score-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #f1c40f;
+            text-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .click-btn {
+            background: none;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .click-btn img {
+            width: 220px;
+            height: 220px;
+            filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.4));
+        }
+
+        .click-btn:active {
+            transform: scale(0.9);
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div id="user-name">Yuklanmoqda...</div>
+        <div class="score-display">
+            💰 <span id="score">0</span>
+        </div>
+        
+        <button class="click-btn" id="clickBtn">
+            <img src="https://cdn-icons-png.flaticon.com/512/5434/5434310.png" alt="Coin">
+        </button>
+        
+        <div class="info">Ekranni bosing va ball to'plang!</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. Firebase Konfiguratsiyasi
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcP_98nEk4HxZpuh_XQoAB7MRvJbkIORc",
+            authDomain: "ilova-79e22.firebaseapp.com",
+            projectId: "ilova-79e22",
+            storageBucket: "ilova-79e22.firebasestorage.app",
+            messagingSenderId: "1084364864104",
+            appId: "1:1084364864104:web:4c12398e4dd6e5978ad9dd"
+        };
+
+        // 2. Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tg = window.Telegram.WebApp;
+
+        const scoreEl = document.getElementById('score');
+        const nameEl = document.getElementById('user-name');
+        const clickBtn = document.getElementById('clickBtn');
+
+        let score = 0;
+        let userId = "guest_user";
+
+        // 3. Telegramdan foydalanuvchini olish
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userId = tg.initDataUnsafe.user.id.toString();
+            nameEl.innerText = tg.initDataUnsafe.user.first_name;
+        } else {
+            nameEl.innerText = "Mehmon (Brauzer)";
+        }
+
+        // 4. Bazadan ballarni yuklash
+        async function loadScore() {
+            try {
+                const docRef = doc(db, "players", userId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    score = docSnap.data().score;
+                    scoreEl.innerText = score;
+                }
+            } catch (err) {
+                console.error("Ma'lumot yuklashda xato:", err);
+            }
+        }
+
+        // 5. Ballarni saqlash funksiyasi
+        async function saveScore() {
+            try {
+                await setDoc(doc(db, "players", userId), {
+                    name: nameEl.innerText,
+                    score: score,
+                    updatedAt: new Date()
+                }, { merge: true });
+            } catch (err) {
+                console.error("Saqlashda xato:", err);
+            }
+        }
+
+        // 6. Tugma bosish hodisasi
+        clickBtn.addEventListener('click', () => {
+            score++;
+            scoreEl.innerText = score;
+            
+            // Har 10 bosilganda bazaga saqlaymiz (internetni tejash uchun)
+            if (score % 10 === 0) {
+                saveScore();
+            }
+            
+            // Haptik tebranish (Vibration)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        });
+
+        // Dastlabki sozlamalar
+        loadScore();
+        tg.expand(); // Ilovani to'liq ekranda ochish
+        tg.ready();
+    </script>
+</body>
+</html>
