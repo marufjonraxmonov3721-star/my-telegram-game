@@ -13,48 +13,63 @@
             overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* Sahifalar boshqaruvi */
         .page { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; overflow-y: auto; height: calc(100vh - 70px); }
         .active-page { display: flex; }
 
-        /* Header qismi */
         .header { text-align: center; width: 100%; margin-bottom: 10px; }
         .score-display { font-size: 3rem; font-weight: bold; color: #f1c40f; text-shadow: 0 0 20px rgba(241, 196, 15, 0.4); }
         .league-badge { background: #f1c40f; color: black; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
-        /* Clicker qismi */
         .energy-container { width: 80%; height: 10px; background: #222; border-radius: 10px; margin: 10px 0; overflow: hidden; }
         #energy-bar { width: 100%; height: 100%; background: #f1c40f; transition: width 0.3s; }
         .click-area { position: relative; margin: 30px 0; }
         .click-btn { background: none; border: none; cursor: pointer; transition: transform 0.05s; }
         .click-btn img { width: 220px; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
-        .click-btn:active { transform: scale(0.95); }
-
-        /* Menyular va Tugmalar */
+        
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; margin-top: 10px; }
         .btn-action { background: #1a1a20; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; }
 
-        /* Leaderboard va Ro'yxatlar */
-        .section-box { width: 90%; background: #16161a; border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; }
+        .section-box { width: 90%; background: #16161a; border-radius: 20px; padding: 15px; border: 1px solid #222; margin-bottom: 20px; box-sizing: border-box; }
         .player-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 1rem; }
-        .rank-num { color: #888; margin-right: 10px; font-weight: normal; }
+        .rank-num { color: #888; margin-right: 10px; }
 
-        /* Pastki Navigatsiya (Play Market uslubida) */
+        /* Katta Bonus Modali */
+        #bonus-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #1c1c22; padding: 30px; border-radius: 30px; text-align: center;
+            width: 80%; border: 2px solid #f1c40f; box-shadow: 0 0 30px rgba(241, 196, 15, 0.2);
+        }
+        .modal-content h2 { color: #f1c40f; margin-top: 0; }
+        .modal-content .bonus-amount { font-size: 2.5rem; font-weight: bold; margin: 15px 0; }
+        .modal-btn { background: #f1c40f; color: black; border: none; padding: 12px 30px; border-radius: 15px; font-weight: bold; width: 100%; font-size: 1rem; }
+
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 70px; background: #16161a;
             display: flex; justify-content: space-around; align-items: center;
             border-top: 1px solid #333; z-index: 100;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; transition: 0.3s; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #888; cursor: pointer; }
         .nav-item.active { color: #f1c40f; }
         .nav-item span { font-size: 0.75rem; margin-top: 4px; }
 
-        /* Animatsiyalar */
         .tap-number { position: absolute; color: #f1c40f; font-size: 1.8rem; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
 <body>
+
+    <div id="bonus-modal">
+        <div class="modal-content">
+            <div style="font-size: 4rem;">🎁</div>
+            <h2>KUNDLIK BONUS!</h2>
+            <div class="bonus-amount">💰 1,000</div>
+            <p style="color: #aaa; margin-bottom: 20px;">Bugungi sovg'angizni qabul qilib oling!</p>
+            <button class="modal-btn" onclick="claimDailyBonus()">QABUL QILISH</button>
+        </div>
+    </div>
 
     <div id="game-page" class="page active-page">
         <div class="header">
@@ -80,8 +95,10 @@
     <div id="friends-page" class="page">
         <h2 style="color: #f1c40f;">👥 Do'stlar</h2>
         <p style="text-align:center; color:#888; padding: 0 20px;">Har bir taklif qilingan do'st uchun 5,000 ball oling!</p>
-        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black;">Do'stlarni taklif qilish</button>
-        <button class="btn-action" id="dailyBtn" style="width: 80%; margin-top: 15px;">🎁 Kunlik Bonus</button>
+        <button class="btn-action" id="refBtn" style="width: 80%; background: #f1c40f; color: black; margin-bottom: 20px;">Do'stlarni taklif qilish</button>
+        <div class="section-box" style="text-align: center; color: #888;">
+            Keyingi bonus 24 soatdan keyin ochiladi.
+        </div>
     </div>
 
     <div class="bottom-nav">
@@ -121,7 +138,6 @@
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "guest";
         const userName = tg.initDataUnsafe?.user?.first_name || "O'yinchi";
 
-        // SAHIFA ALMASHTIRISH
         window.showPage = function(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -137,6 +153,8 @@
 
             if (!docSnap.exists()) {
                 await setDoc(userRef, { name: userName, score: 0, clickPower: 1, upgradeCost: 100, autoPower: 0, autoCost: 500, lastDaily: 0 });
+                // Yangi foydalanuvchi bo'lgani uchun darhol bonus chiqarish
+                document.getElementById('bonus-modal').style.display = 'flex';
                 if (tg.initDataUnsafe.start_param) {
                     await setDoc(doc(db, "players", tg.initDataUnsafe.start_param), { score: increment(5000) }, { merge: true });
                 }
@@ -147,9 +165,24 @@
                 upgradeCost = data.upgradeCost || 100;
                 autoPower = data.autoPower || 0;
                 autoCost = data.autoCost || 500;
+                
+                // 24 soat tekshiruvi
+                if (Date.now() - (data.lastDaily || 0) > 86400000) {
+                    document.getElementById('bonus-modal').style.display = 'flex';
+                }
             }
             updateUI();
         }
+
+        window.claimDailyBonus = async function() {
+            score += 1000;
+            const userRef = doc(db, "players", userId);
+            await setDoc(userRef, { lastDaily: Date.now(), score: score }, { merge: true });
+            document.getElementById('bonus-modal').style.display = 'none';
+            updateUI();
+            tg.showAlert("Tabriklaymiz! 1,000 ball qo'shildi.");
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        };
 
         function updateUI() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
@@ -185,19 +218,8 @@
             if (score >= autoCost) {
                 score -= autoCost; autoPower++; autoCost *= 2;
                 updateUI(); save();
-                tg.showAlert("Robot sotib olindi!");
+                tg.showAlert("Robot ishga tushdi!");
             }
-        });
-
-        document.getElementById('dailyBtn').addEventListener('click', async () => {
-            const userRef = doc(db, "players", userId);
-            const data = (await getDoc(userRef)).data();
-            if (Date.now() - (data.lastDaily || 0) > 86400000) {
-                score += 1000;
-                await setDoc(userRef, { lastDaily: Date.now(), score: score }, { merge: true });
-                tg.showAlert("1,000 ball bonus berildi!");
-                updateUI();
-            } else tg.showAlert("Ertaga qaytib keling!");
         });
 
         document.getElementById('refBtn').addEventListener('click', () => {
