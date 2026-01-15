@@ -3,51 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raxmonov Gold: Empire</title>
+    <title>Raxmonov Gold: Emperor Security Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root { --gold: #ffd700; --bg: #0b0e11; --card: #1c2127; --green: #27ae60; --red: #e74c3c; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; user-select: none; }
         
-        /* Stats */
         .header { margin-top: 15px; text-align: center; }
-        #score { font-size: 42px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); margin: 0; }
-        .league { font-size: 10px; background: var(--green); padding: 2px 12px; border-radius: 20px; font-weight: bold; }
+        #score { font-size: 40px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); margin: 0; }
+        .status-row { font-size: 10px; color: var(--green); margin-top: 5px; font-weight: bold; }
 
-        /* Game Area */
         .game-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
-        .coin-btn { width: 190px; height: 190px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 90px; cursor: pointer; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); border: 8px solid #ffd700; transition: transform 0.05s; }
-        .coin-btn:active { transform: scale(0.92); }
+        .coin-btn { width: 200px; height: 200px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 90px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 8px solid #ffd700; transition: transform 0.05s; z-index: 5; }
+        .coin-btn:active { transform: scale(0.95); }
 
-        /* Navigation */
-        .bottom-nav { width: 100%; background: var(--card); padding: 10px 0; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid #333; }
-        .nav-item { text-align: center; cursor: pointer; font-size: 10px; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
+        .bottom-nav { width: 100%; background: var(--card); padding: 12px 0; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid #333; }
+        .nav-item { text-align: center; cursor: pointer; font-size: 10px; color: #888; }
+        .nav-item b { color: var(--gold); display: block; font-size: 11px; }
 
-        /* Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; z-index: 1000; padding-top: 10px; }
-        .modal-header { width: 92%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .close-x { background: #444; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; }
-        .content-box { width: 92%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; z-index: 1000; padding-top: 15px; }
+        .modal-header { width: 90%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .close-x { background: #333; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; }
+        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; }
 
-        /* Elements */
         .item-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; }
-        .btn-action { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-action { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 5px; cursor: pointer; }
         input { width: 100%; padding: 12px; margin-bottom: 8px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
-        .admin-tag { position: fixed; top: 10px; left: 10px; background: var(--red); font-size: 10px; padding: 5px 10px; border-radius: 5px; cursor: pointer; display: none; z-index: 1001; }
+        .admin-tag { position: fixed; top: 10px; right: 10px; background: var(--red); font-size: 10px; padding: 5px 10px; border-radius: 5px; cursor: pointer; display: none; z-index: 1001; }
+        
+        .rules-list { font-size: 12px; color: #ccc; line-height: 1.6; }
+        .violation-log { font-size: 11px; color: #ff7675; border-bottom: 1px solid #444; padding: 5px 0; }
     </style>
 </head>
 <body>
 
-    <div id="admin-access" class="admin-tag" onclick="openPanel('admin')">⚙️ ADMIN</div>
+    <div id="admin-access" class="admin-tag" onclick="openPanel('admin')">⚙️ EMPEROR</div>
 
     <div class="header">
-        <div id="league" class="league">Bronze League</div>
         <h1 id="score">0</h1>
-        <div style="font-size: 10px; color: var(--green); margin-top: 5px;">Online: <span id="online-users">1</span></div>
+        <div class="status-row">● LIVE: <span id="online-users">1</span> | ID: <span id="my-id">...</span></div>
     </div>
 
     <div class="game-area">
@@ -55,11 +52,11 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="openPanel('tasks')"><i>📋</i>Vazifalar</div>
-        <div class="nav-item" onclick="openPanel('mining')"><i>⛏️</i>Fermalar</div>
-        <div class="nav-item" onclick="openPanel('transfer')"><i>💸</i>Transfer</div>
-        <div class="nav-item" onclick="openPanel('rank')"><i>🏆</i>Top</div>
-        <div class="nav-item" onclick="openPanel('admin')"><i>⚙️</i>Admin</div>
+        <div class="nav-item" onclick="openPanel('rules')">📜<b>Qoidalar</b></div>
+        <div class="nav-item" onclick="openPanel('mining')">⛏️<b>Mining</b></div>
+        <div class="nav-item" onclick="openPanel('transfer')">💸<b>Transfer</b></div>
+        <div class="nav-item" onclick="openPanel('rank')">🏆<b>Reyting</b></div>
+        <div class="nav-item" onclick="openPanel('tasks')">🎁<b>Tasks</b></div>
     </div>
 
     <div id="overlay" class="overlay">
@@ -87,152 +84,170 @@
         tg.expand();
 
         const ADMIN_ID = 7385372033; 
-        const user = tg.initDataUnsafe?.user || { id: 12345, first_name: "Mehmon" };
+        const user = tg.initDataUnsafe?.user || { id: 111222, first_name: "O'yinchi" };
         const userRef = db.ref('users/' + user.id);
         
-        let score = 0, miningLevel = 0;
+        document.getElementById('my-id').innerText = user.id;
+        let score = 0, miningLvl = 0, lastTap = 0, fastTapCount = 0;
 
         if(user.id == ADMIN_ID) document.getElementById('admin-access').style.display = 'block';
 
-        // Ma'lumotlarni olish
-        userRef.on('value', (snap) => {
-            const data = snap.val();
-            if(data) {
-                score = data.score || 0;
-                miningLevel = data.miningLevel || 0;
+        // Ma'lumotlarni yuklash
+        userRef.on('value', snap => {
+            const d = snap.val();
+            if(d) {
+                if(d.banned) { document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>BLOKLANGANSIZ! ❌</h1>"; return; }
+                score = d.score || 0;
+                miningLvl = d.miningLevel || 0;
                 updateUI();
             } else {
-                userRef.set({ name: user.first_name, score: 0, miningLevel: 0 });
+                userRef.set({ name: user.first_name, score: 0, miningLevel: 0, banned: false });
             }
         });
 
-        function updateUI() {
-            document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-        }
+        function updateUI() { document.getElementById('score').innerText = Math.floor(score).toLocaleString(); }
 
+        // Anti-Cheat Tap Logic
         document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
+            let now = Date.now();
+            if(now - lastTap < 40) { // 40ms dan tez bossa
+                fastTapCount++;
+                if(fastTapCount > 15) reportViolation("Avtokliker shubhasi (juda tez bosish)");
+            } else { fastTapCount = 0; }
+            lastTap = now;
+
             score += 1;
             userRef.update({ score: score });
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         });
 
+        // Tizimga qoidabuzarni yozish
+        function reportViolation(reason) {
+            db.ref('violations').push({
+                userId: user.id, name: user.first_name, reason: reason, time: new Date().toLocaleString()
+            });
+            db.ref('admin_alerts').set({ msg: `🚨 QOIDABUZAR: ${user.first_name} (${user.id}) - ${reason}`, time: Date.now() });
+            tg.showAlert("⚠️ SHUBHALI HARAKAT! Adminga hisobot yuborildi.");
+        }
+
         function openPanel(type) {
             const overlay = document.getElementById('overlay');
             const content = document.getElementById('panel-content');
             const title = document.getElementById('panel-title');
-            overlay.style.display = 'flex';
-            content.innerHTML = '';
+            overlay.style.display = 'flex'; content.innerHTML = '';
 
-            if(type === 'tasks') {
-                title.innerText = "Bonus Vazifalar";
-                const tasks = [
-                    { id: 't1', name: "Kanalga obuna bo'lish", reward: 50000, link: "https://t.me/your_channel" },
-                    { id: 't2', name: "YouTube kanalimiz", reward: 75000, link: "https://youtube.com/..." }
-                ];
-                tasks.forEach(t => {
-                    content.innerHTML += `<div class="item-card">
-                        <span>${t.name}<br><small>+${t.reward.toLocaleString()}</small></span>
-                        <button class="btn-action" onclick="doTask('${t.link}', ${t.reward})">Bajarish</button>
-                    </div>`;
-                });
-            } else if(type === 'mining') {
-                title.innerText = "Mining Fermalar";
-                const farms = [
-                    { lvl: 1, price: 50000, speed: 2, name: "Mini Farm" },
-                    { lvl: 2, price: 250000, speed: 10, name: "Giga Farm" }
-                ];
-                farms.forEach(f => {
-                    content.innerHTML += `<div class="item-card">
-                        <span>${f.name}<br><small>${f.speed} /sek</small></span>
-                        <button class="btn-action" onclick="buyFarm(${f.price}, ${f.speed})">${f.price.toLocaleString()}</button>
-                    </div>`;
-                });
+            if(type === 'rules') {
+                title.innerText = "O'yin Qoidalari";
+                content.innerHTML = `<div class="rules-list">
+                    1. O'z-o'ziga ball o'tkazish taqiqlanadi.<br>
+                    2. Avtokliker ishlatish bloklanishga sabab bo'ladi.<br>
+                    3. Bot kodiga zarar yetkazish taqiqlanadi.<br>
+                    4. Chatda haqorat va reklama mumkin emas.<br>
+                    5. Multi-akkaunt (bir nechta profil) taqiqlanadi.<br>
+                    6. Adminni aldash og'ir jazolanadi.<br>
+                    7. O'yin buglaridan foydalanish taqiqlanadi.<br>
+                    8. ID raqamlarni soxtalashtirish mumkin emas.<br>
+                    9. Ballarni pulga noqonuniy sotish taqiqlanadi.<br>
+                    10. Har qanday shubhali harakat tekshiriladi.
+                </div>`;
             } else if(type === 'transfer') {
                 title.innerText = "Ball O'tkazish";
                 content.innerHTML = `
-                    <p style="font-size:12px; color:#aaa;">Boshqa o'yinchining ID raqamini kiriting:</p>
-                    <input id="recID" placeholder="ID raqami (masalan: 777888)">
-                    <input id="recAmount" placeholder="Soni (masalan: 10000)">
-                    <button class="btn-action" style="width:100%" onclick="sendMoney()">YUBORISH</button>
+                    <input id="recID" placeholder="Qabul qiluvchi ID...">
+                    <input id="recAmt" type="number" placeholder="Soni (min 1000)...">
+                    <button class="btn-action" onclick="sendMoney()">YUBORISH</button>
                 `;
+            } else if(type === 'admin') {
+                title.innerText = "Emperor Control";
+                content.innerHTML = `
+                    <div style="margin-bottom:15px; border:1px solid var(--red); padding:10px; border-radius:10px;">
+                        <h4 style="margin:0; color:var(--red);">🚨 QOIDABUZARLAR LOGI</h4>
+                        <div id="vLog" style="font-size:10px; height:100px; overflow-y:auto;"></div>
+                    </div>
+                    <input id="targetId" placeholder="User ID...">
+                    <button class="btn-action" onclick="manageUser('ban')">Bloklash/Ochish</button>
+                    <button class="btn-action" onclick="manageUser('bonus')">+100K Bonus Berish</button>
+                    <button class="btn-action" style="background:var(--red);color:white;" onclick="globalReset()">SEASON RESET (HAMMA 0)</button>
+                `;
+                db.ref('violations').limitToLast(5).on('value', s => {
+                    const log = document.getElementById('vLog'); log.innerHTML = '';
+                    s.forEach(v => { log.innerHTML += `<div class="violation-log">${v.val().name}: ${v.val().reason}</div>`; });
+                });
             } else if(type === 'rank') {
-                title.innerText = "Top 10 O'yinchi";
-                db.ref('users').orderByChild('score').limitToLast(10).once('value', snap => {
-                    let players = []; snap.forEach(c => { players.push(c.val()); });
-                    players.reverse().forEach((p, i) => {
-                        content.innerHTML += `<div class="item-card"><span>${i+1}. ${p.name}</span><b>${Math.floor(p.score).toLocaleString()}</b></div>`;
+                title.innerText = "Top 10";
+                db.ref('users').orderByChild('score').limitToLast(10).once('value', s => {
+                    let p = []; s.forEach(c => p.push(c.val()));
+                    p.reverse().forEach((x, i) => {
+                        content.innerHTML += `<div class="item-card"><span>${i+1}. ${x.name}</span><b>${Math.floor(x.score).toLocaleString()}</b></div>`;
                     });
                 });
-            } else if(type === 'admin') {
-                if(user.id != ADMIN_ID) return overlay.style.display = 'none';
-                title.innerText = "Admin Boshqaruvi";
-                content.innerHTML = `
-                    <div class="item-card" style="flex-direction:column; gap:10px;">
-                        <input id="admMsg" placeholder="Global xabar yozing...">
-                        <button class="btn-action" style="width:100%" onclick="sendGlobalMsg()">📢 HAMMAGA YUBORISH</button>
-                    </div>
-                    <button class="btn-action" style="width:100%; background:var(--red); color:white;" onclick="globalBonus()">🎁 HAMMAGA +100K BONUS</button>
-                `;
+            } else if(type === 'mining') {
+                title.innerText = "Mining Fermalar";
+                const fs = [{p:50000, s:5, n:"Bronze Farm"}, {p:200000, s:25, n:"Silver Farm"}];
+                fs.forEach(f => {
+                    content.innerHTML += `<div class="item-card"><span>${f.name}<br><small>+${f.s}/sek</small></span><button class="btn-action" style="width:auto" onclick="buyFarm(${f.p}, ${f.s})">${f.p}</button></div>`;
+                });
             }
         }
 
-        // --- FUNKSIYALAR ---
-
-        function doTask(link, reward) {
-            tg.openTelegramLink(link);
-            setTimeout(() => {
-                userRef.update({ score: score + reward });
-                tg.showAlert("Bonus berildi: " + reward);
-            }, 3000);
-        }
-
-        function buyFarm(price, speed) {
-            if(score >= price) {
-                userRef.update({ score: score - price, miningLevel: speed });
-                tg.showAlert("Ferma sotib olindi!");
-                closePanel();
-            } else tg.showAlert("Mablag' yetarli emas!");
-        }
+        // --- MANTIQIY FUNKSIYALAR ---
 
         function sendMoney() {
-            const rid = document.getElementById('recID').value;
-            const amt = parseInt(document.getElementById('recAmount').value);
-            if(!rid || amt < 1000) return tg.showAlert("ID xato yoki minimal 1000 ball!");
-            if(score < amt) return tg.showAlert("Mablag' yetarli emas!");
+            const rid = document.getElementById('recID').value.trim();
+            const amt = parseInt(document.getElementById('recAmt').value);
+            if(rid == user.id) { reportViolation("O'z-o'ziga ball o'tkazishga urindi"); return; }
+            if(!rid || amt < 1000 || score < amt) { tg.showAlert("Ma'lumot xato yoki ball kam!"); return; }
 
             db.ref('users/' + rid).once('value', s => {
                 if(s.exists()) {
-                    db.ref('users/' + rid).update({ score: (s.val().score || 0) + amt });
                     userRef.update({ score: score - amt });
-                    tg.showAlert("O'tkazildi!");
-                    closePanel();
-                } else tg.showAlert("Bunday ID topilmadi!");
+                    db.ref('users/' + rid).update({ score: (s.val().score || 0) + amt });
+                    tg.showAlert("Yuborildi! ✅"); closePanel();
+                } else tg.showAlert("ID topilmadi!");
             });
         }
 
-        function sendGlobalMsg() {
-            const t = document.getElementById('admMsg').value;
-            if(t) db.ref('global_notification').set({ text: t, time: Date.now() });
+        function buyFarm(p, s) {
+            if(score >= p) { userRef.update({ score: score - p, miningLevel: s }); tg.showAlert("Sotib olindi!"); closePanel(); }
+            else tg.showAlert("Mablag' yetarli emas!");
         }
 
-        function globalBonus() {
-            db.ref('users').once('value', snap => {
-                const up = {}; snap.forEach(c => { up[c.key + '/score'] = (c.val().score || 0) + 100000; });
-                db.ref('users').update(up);
+        function manageUser(act) {
+            const tid = document.getElementById('targetId').value;
+            if(!tid) return;
+            db.ref('users/'+tid).once('value', s => {
+                if(act === 'ban') db.ref('users/'+tid).update({ banned: !s.val().banned });
+                if(act === 'bonus') db.ref('users/'+tid).update({ score: (s.val().score || 0) + 100000 });
                 tg.showAlert("Bajarildi!");
             });
         }
 
-        // Avtomatik Mining (Har soniyada ball qo'shish)
-        setInterval(() => {
-            if(miningLevel > 0) {
-                score += (miningLevel / 10);
-                updateUI();
-                // Har 10 soniyada bazaga saqlash (serverni yuklamaslik uchun)
-                if(Math.floor(score) % 10 === 0) userRef.update({ score: score });
-            }
-        }, 100);
+        function globalReset() {
+            tg.showConfirm("HAMMA BALLARNI O'CHIRISH?", c => {
+                if(c) {
+                    db.ref('users').once('value', snap => {
+                        const up = {}; snap.forEach(u => up[u.key+'/score'] = 0);
+                        db.ref('users').update(up);
+                    });
+                }
+            });
+        }
+
+        // Admin uchun Jonli Alert
+        if(user.id == ADMIN_ID) {
+            db.ref('admin_alerts').on('value', s => {
+                const a = s.val();
+                if(a && Date.now() - a.time < 5000) tg.showPopup({ title: "🚨 OGOHLANTIRISH", message: a.msg });
+            });
+        }
+
+        // Online Count
+        db.ref('online/'+user.id).set(true); db.ref('online/'+user.id).onDisconnect().remove();
+        db.ref('online').on('value', s => document.getElementById('online-users').innerText = s.numChildren());
+
+        // Auto Mining
+        setInterval(() => { if(miningLvl > 0) { score += (miningLvl/10); updateUI(); if(Math.floor(score)%20===0) userRef.update({score:score}); } }, 100);
 
         function closePanel() { document.getElementById('overlay').style.display = 'none'; }
     </script>
