@@ -12,9 +12,8 @@
         body {
             background-color: #0b0e11;
             color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,17 +21,8 @@
             touch-action: manipulation;
         }
 
-        .stats-container {
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        #score {
-            font-size: 48px;
-            font-weight: 800;
-            color: #f39c12;
-            text-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
-        }
+        .stats-container { margin-top: 40px; text-align: center; }
+        #score { font-size: 50px; font-weight: 800; color: #f39c12; text-shadow: 0 0 20px rgba(243, 156, 18, 0.4); }
 
         .coin-btn {
             margin-top: 30px;
@@ -49,160 +39,129 @@
             transition: transform 0.05s;
             border: 8px solid #e67e22;
         }
-
-        .coin-btn:active {
-            transform: translateY(5px) scale(0.95);
-            box-shadow: 0 5px 0 #a04000, 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .ai-card {
-            background: #1c2127;
-            width: 90%;
-            margin-top: 30px;
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            border-left: 5px solid #f39c12;
-        }
-
-        .ai-text {
-            margin-left: 15px;
-            font-size: 14px;
-            color: #bdc3c7;
-        }
+        .coin-btn:active { transform: translateY(5px) scale(0.95); box-shadow: 0 5px 0 #a04000; }
 
         .leaderboard {
             width: 90%;
-            margin-top: 20px;
+            margin-top: 30px;
             background: #1c2127;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 15px;
             margin-bottom: 50px;
+            border: 1px solid #2c3e50;
         }
 
         .player-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            align-items: center;
+            padding: 12px 10px;
             border-bottom: 1px solid #2c3e50;
         }
-
         .player-row:last-child { border: none; }
-        .rank { color: #f39c12; font-weight: bold; width: 30px; display: inline-block; }
+
+        /* Reyting stili - # belgisiz */
+        .rank-box {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .gold { font-size: 22px; } /* 1-o'rin uchun */
+        .silver { font-size: 22px; } /* 2-o'rin uchun */
+        .bronze { font-size: 22px; } /* 3-o'rin uchun */
+        .normal-rank { color: #7f8c8d; font-size: 16px; }
+
+        .player-info { display: flex; align-items: center; }
+        .player-name { font-size: 15px; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <div class="stats-container">
-        <div style="font-size: 14px; color: #7f8c8d;">BALANSINGIZ</div>
+        <div style="font-size: 14px; color: #7f8c8d; letter-spacing: 1px;">UMUMIY BALANS</div>
         <div id="score">0</div>
     </div>
 
     <div class="coin-btn" id="tapBtn">🪙</div>
 
-    <div class="ai-card">
-        <div style="font-size: 30px;">🤖</div>
-        <div class="ai-text">
-            <strong style="color: white; display: block;">AI Yordamchi</strong>
-            <span id="ai-status">Yuklanmoqda...</span>
-        </div>
-    </div>
-
     <div class="leaderboard">
-        <h3 style="margin-top: 0; text-align: center; font-size: 16px;">🏆 TOP 10 O'YINCHI</h3>
-        <div id="leaderboard-list"></div>
+        <h3 style="margin-top: 0; text-align: center; font-size: 18px; color: #f39c12;">🏆 TOP O'YINCHILAR</h3>
+        <div id="leaderboard-list">Yuklanmoqda...</div>
     </div>
 
     <script>
-        // 1. FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyBc7tUey3q6hGZjWxisJo701-G4NbyD9zI",
             authDomain: "gen-lang-client-0228947349.firebaseapp.com",
             projectId: "gen-lang-client-0228947349",
-            // URL manzilingizni aniq kiritdim
             databaseURL: "https://gen-lang-client-0228947349-default-rtdb.firebaseio.com",
             storageBucket: "gen-lang-client-0228947349.firebasestorage.app",
             messagingSenderId: "253793341504",
             appId: "1:253793341504:web:709752258000dab44fcfa5"
         };
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
-        // 2. TELEGRAM INTEGRATION
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Agar Telegramda bo'lmasa, test uchun ID yaratish
         const userId = tg.initDataUnsafe.user?.id || "guest_" + Math.floor(Math.random() * 9999);
         const userName = tg.initDataUnsafe.user?.first_name || "O'yinchi";
 
         let score = 0;
         const scoreEl = document.getElementById('score');
-        const tapBtn = document.getElementById('tapBtn');
-        const aiStatus = document.getElementById('ai-status');
-
-        // 3. DATABASE BILAN ISHLASH
         const userRef = db.ref('users/' + userId);
 
-        // Ma'lumotni olish
         userRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 score = data.score;
                 scoreEl.innerText = score.toLocaleString();
-                updateAIMessage();
             } else {
                 userRef.set({ name: userName, score: 0 });
             }
         });
 
-        // Click funksiyasi
-        tapBtn.addEventListener('click', () => {
+        document.getElementById('tapBtn').addEventListener('click', () => {
             score++;
             scoreEl.innerText = score.toLocaleString();
             userRef.update({ score: score });
-            
-            // Vibratsiya (Telegram mobil ilovasida ishlaydi)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         });
 
-        // 4. REYTING TIZIMI
+        // REYTING TIZIMI - YANGILANGAN
         const leaderboardRef = db.ref('users').orderByChild('score').limitToLast(10);
         leaderboardRef.on('value', (snapshot) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = '';
             let players = [];
             
-            snapshot.forEach(child => {
-                players.push(child.val());
-            });
-            
+            snapshot.forEach(child => { players.push(child.val()); });
             players.reverse().forEach((player, index) => {
+                let rankNum = index + 1;
+                let rankHTML = '';
+
+                // Shartli ravishda medallar yoki raqamlarni belgilash
+                if (rankNum === 1) rankHTML = '<div class="rank-box gold">🥇</div>';
+                else if (rankNum === 2) rankHTML = '<div class="rank-box silver">🥈</div>';
+                else if (rankNum === 3) rankHTML = '<div class="rank-box bronze">🥉</div>';
+                else rankHTML = `<div class="rank-box normal-rank">${rankNum}</div>`;
+                
                 list.innerHTML += `
                     <div class="player-row">
-                        <span><span class="rank">#${index + 1}</span> ${player.name}</span>
-                        <span style="font-weight: bold;">${player.score.toLocaleString()}</span>
+                        <div class="player-info">
+                            ${rankHTML}
+                            <span class="player-name">${player.name}</span>
+                        </div>
+                        <span style="font-weight: bold; color: #f39c12;">${player.score.toLocaleString()}</span>
                     </div>`;
             });
         });
-
-        // 5. SODDA AI MANTIQI
-        function updateAIMessage() {
-            if (score < 100) {
-                aiStatus.innerText = "Yaxshi boshlanish! Tezroq bossang, TOPga kirasan.";
-            } else if (score < 500) {
-                aiStatus.innerText = "Ajoyib! Sening natijang o'rtacha ko'rsatkichdan baland.";
-            } else {
-                aiStatus.innerText = "Sen haqiqiy chempionsan! Rekordlarni yangila!";
-            }
-        }
     </script>
 </body>
 </html>
