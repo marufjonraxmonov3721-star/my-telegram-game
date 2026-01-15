@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raxmonov Gold: Empire</title>
+    <title>Raxmonov Gold Clicker: Empire Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root { --gold: #ffd700; --bg: #0b0e11; --card: #1c2127; --green: #27ae60; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; user-select: none; }
         
         /* Stats */
-        .header { margin-top: 20px; text-align: center; }
+        .header { margin-top: 20px; text-align: center; z-index: 10; }
         #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
-        .league-badge { font-size: 12px; color: #fff; background: var(--green); padding: 2px 10px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
-        
+        .league-badge { font-size: 11px; background: var(--green); padding: 2px 12px; border-radius: 20px; font-weight: bold; }
         .online-count { font-size: 10px; color: var(--green); margin-top: 5px; }
 
         /* Game Area */
         .game-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
-        .coin-btn { width: 210px; height: 210px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 100px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 8px solid #ffd700; transition: transform 0.05s; }
+        .coin-btn { width: 210px; height: 210px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 100px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 8px solid #ffd700; transition: transform 0.05s; z-index: 5; }
         .coin-btn:active { transform: scale(0.92); }
 
         /* Floating Text */
@@ -29,22 +28,27 @@
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
 
         /* Bottom Nav */
-        .bottom-nav { width: 100%; background: var(--card); border-radius: 25px 25px 0 0; padding: 15px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; border-top: 2px solid #333; }
+        .bottom-nav { width: 100%; background: var(--card); border-radius: 25px 25px 0 0; padding: 15px 0; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid #333; z-index: 20; }
         .nav-item { text-align: center; cursor: pointer; }
-        .nav-item span { font-size: 10px; color: #aaa; display: block; }
-        .nav-item b { font-size: 12px; color: var(--gold); }
+        .nav-item span { font-size: 9px; color: #aaa; display: block; }
+        .nav-item b { font-size: 11px; color: var(--gold); }
 
         /* Modals */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
-        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; }
-        .close-btn { background: #e74c3c; border: none; padding: 12px 30px; border-radius: 10px; color: white; font-weight: bold; }
+        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; border: 1px solid #333; }
+        .close-btn { background: #e74c3c; border: none; padding: 12px 30px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
-        /* Wheel Style */
-        .wheel-box { text-align: center; padding: 20px; }
-        .wheel-btn { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 20px auto; background: #2c3e50; cursor: pointer; }
+        /* Admin & UI Elements */
+        .admin-tag { position: fixed; top: 10px; right: 10px; background: #e74c3c; font-size: 10px; padding: 5px 10px; border-radius: 8px; display: none; cursor: pointer; z-index: 1001; }
+        .shop-item, .rank-row, .msg { background: #2c3e50; margin-bottom: 10px; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .chat-input { display: flex; gap: 5px; width: 90%; margin-bottom: 10px; }
+        .chat-input input { flex-grow: 1; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #0b0e11; color: white; }
     </style>
 </head>
 <body>
+
+    <div id="admin-access" class="admin-tag" onclick="openPanel('admin')">⚙️ ADMIN</div>
 
     <div class="header">
         <div id="league" class="league-badge">Bronze League</div>
@@ -57,15 +61,20 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="openPanel('shop')"><span>Botlar</span><b>Mining</b></div>
-        <div class="nav-item" onclick="openPanel('chat')"><span>Chat</span><b>Global</b></div>
-        <div class="nav-item" onclick="openPanel('wheel')"><span>Omad</span><b>G'ildirak</b></div>
+        <div class="nav-item" onclick="openPanel('shop')"><span>Mining</span><b>Botlar</b></div>
+        <div class="nav-item" onclick="openPanel('chat')"><span>Global</span><b>Chat</b></div>
+        <div class="nav-item" onclick="openPanel('wheel')"><span>Omad</span><b>Wheel</b></div>
         <div class="nav-item" onclick="openPanel('rank')"><span>Top</span><b>Reyting</b></div>
+        <div class="nav-item" onclick="claimDaily()"><span>Bonus</span><b id="daily-btn">Olish</b></div>
     </div>
 
     <div id="overlay" class="overlay">
-        <h2 id="panel-title" style="color: var(--gold);">Sarlavha</h2>
+        <h2 id="panel-title" style="color: var(--gold); margin-bottom: 10px;">Sarlavha</h2>
         <div class="content-box" id="panel-content"></div>
+        <div id="chat-input-area" class="chat-input" style="display:none;">
+            <input id="msgInput" placeholder="Xabar yozing...">
+            <button class="buy-btn" onclick="sendChat()">></button>
+        </div>
         <button class="close-btn" onclick="closePanel()">Yopish</button>
     </div>
 
@@ -85,33 +94,35 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const user = tg.initDataUnsafe?.user || { id: "dev_" + Math.random(), first_name: "O'yinchi" };
+        const ADMIN_ID = 123456789; // O'Z IDINGIZNI YOZING
+        const user = tg.initDataUnsafe?.user || { id: "dev_user", first_name: "O'yinchi" };
         const userRef = db.ref('users/' + user.id);
+        
+        let score = 0, autoLevel = 0, lastWheel = 0, lastDaily = 0;
+
+        // Admin panelni ko'rsatish
+        if(user.id == ADMIN_ID) document.getElementById('admin-access').style.display = 'block';
+
+        // Online tizimi
         const onlineRef = db.ref('online/' + user.id);
+        onlineRef.set(true); onlineRef.onDisconnect().remove();
+        db.ref('online').on('value', s => document.getElementById('online-users').innerText = s.numChildren());
 
-        let score = 0, autoLevel = 0, lastWheel = 0;
-
-        // 1. ONLINE STATUS & DATA SYNC
-        onlineRef.set(true);
-        onlineRef.onDisconnect().remove();
-
-        db.ref('online').on('value', s => {
-            document.getElementById('online-users').innerText = s.numChildren();
-        });
-
+        // Ma'lumotlarni yuklash
         userRef.on('value', (snap) => {
             const data = snap.val();
             if(data) {
                 score = data.score || 0;
                 autoLevel = data.autoLevel || 0;
                 lastWheel = data.lastWheel || 0;
+                lastDaily = data.lastDaily || 0;
                 updateUI();
             } else {
-                userRef.set({ name: user.first_name, score: 0, autoLevel: 0, lastWheel: 0 });
+                userRef.set({ name: user.first_name, score: 0, autoLevel: 0, lastWheel: 0, lastDaily: 0 });
             }
         });
 
-        // 2. TAP SYSTEM
+        // Tap Logic
         document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             score += 1;
@@ -122,77 +133,104 @@
 
         function updateUI() {
             document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-            let l = "Bronze";
-            if(score > 100000) l = "Silver";
-            if(score > 1000000) l = "Gold";
-            if(score > 10000000) l = "Diamond";
+            let l = score > 1000000 ? "Diamond" : score > 100000 ? "Gold" : score > 10000 ? "Silver" : "Bronze";
             document.getElementById('league').innerText = l + " League";
         }
 
-        // 3. PANELS
+        function createPlusText(x, y) {
+            const el = document.createElement('div'); el.className = 'plus-one'; el.innerText = '+1';
+            el.style.left = x + 'px'; el.style.top = y + 'px';
+            document.body.appendChild(el); setTimeout(() => el.remove(), 600);
+        }
+
+        // Panels
         function openPanel(type) {
             const overlay = document.getElementById('overlay');
             const content = document.getElementById('panel-content');
-            overlay.style.display = 'flex';
-            content.innerHTML = '';
+            const chatInput = document.getElementById('chat-input-area');
+            overlay.style.display = 'flex'; chatInput.style.display = 'none'; content.innerHTML = '';
 
             if(type === 'wheel') {
                 document.getElementById('panel-title').innerText = "Omad G'ildiragi";
-                content.innerHTML = `<div class="wheel-box">
-                    <p>Har 6 soatda bir marta aylantiring!</p>
-                    <div class="wheel-btn" id="wBtn" onclick="spinWheel()">🎡</div>
-                    <p id="wheel-timer"></p>
-                </div>`;
-                updateWheelTimer();
+                content.innerHTML = `<div style="text-align:center;"><div style="font-size:60px; margin:20px;">🎡</div>
+                    <button class="buy-btn" onclick="spinWheel()">AYLANTIRISH</button><p id="wTime"></p></div>`;
             } else if(type === 'shop') {
-                document.getElementById('panel-title').innerText = "Botlar";
-                content.innerHTML = `<p>Botlar sekundiga oltin yig'adi!</p>
-                    <button class="close-btn" style="background:var(--gold); color:black;" onclick="buyBot()">Bot Sotib olish (10,000)</button>`;
+                document.getElementById('panel-title').innerText = "Botlar Magazini";
+                const bots = [{l:1, p:10000}, {l:2, p:50000}, {l:3, p:200000}];
+                bots.forEach(b => {
+                    content.innerHTML += `<div class="shop-item"><span>Lvl ${b.l} Bot</span><button class="buy-btn" onclick="buyBot(${b.l},${b.p})">${b.p}</button></div>`;
+                });
             } else if(type === 'chat') {
                 document.getElementById('panel-title').innerText = "Global Chat";
-                content.innerHTML = "<p>Chat tez kunda yangilanadi...</p>";
+                chatInput.style.display = 'flex'; loadChat(content);
             } else if(type === 'rank') {
-                document.getElementById('panel-title').innerText = "Top Reyting";
-                db.ref('users').orderByChild('score').limitToLast(10).once('value', snap => {
-                    snap.forEach(c => {
-                        content.innerHTML = `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
-                            <span>${c.val().name}</span><b>${Math.floor(c.val().score).toLocaleString()}</b>
-                        </div>` + content.innerHTML;
-                    });
-                });
+                document.getElementById('panel-title').innerText = "Top 10";
+                loadRank(content);
+            } else if(type === 'admin') {
+                document.getElementById('panel-title').innerText = "Admin Panel";
+                content.innerHTML = `<input id="admMsg" placeholder="Global xabar..." style="width:90%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:none; border-radius:10px;">
+                    <button class="buy-btn" style="width:100%;" onclick="sendGlobalMsg()">XABAR YUBORISH</button>
+                    <button class="buy-btn" style="width:100%; margin-top:10px; background:#27ae60;" onclick="giveGlobalBonus()">HAMMAGA 100K BONUS</button>`;
             }
         }
 
-        // 4. WHEEL LOGIC
+        // Funksiyalar
         function spinWheel() {
-            const now = Date.now();
-            if(now > lastWheel + 21600000) { // 6 soat
-                const win = Math.floor(Math.random() * 50000) + 5000;
-                score += win;
-                userRef.update({ score: score, lastWheel: now });
-                tg.showAlert("Tabriklaymiz! Siz " + win + " Raxmonov yutdingiz!");
-                closePanel();
-            } else {
-                tg.showAlert("Hali vaqt bor!");
-            }
+            if(Date.now() > lastWheel + 21600000) {
+                let win = Math.floor(Math.random() * 50000) + 5000;
+                userRef.update({ score: score + win, lastWheel: Date.now() });
+                tg.showAlert("Yutuq: " + win + " Raxmonov!"); closePanel();
+            } else tg.showAlert("Hali vaqt bor!");
         }
 
-        function updateWheelTimer() {
-            const timer = document.getElementById('wheel-timer');
-            if(!timer) return;
-            const now = Date.now();
-            const left = (lastWheel + 21600000) - now;
-            if(left > 0) timer.innerText = "Keyingi urinish: " + Math.ceil(left/3600000) + " soatdan keyin";
-            else timer.innerText = "Hozir aylantiring!";
+        function buyBot(l, p) {
+            if(score >= p) { userRef.update({ score: score - p, autoLevel: l }); tg.showAlert("Bot olindi!"); closePanel(); }
+            else tg.showAlert("Mablag' yetarli emas!");
         }
 
-        function createPlusText(x, y) {
-            const el = document.createElement('div');
-            el.className = 'plus-one'; el.innerText = '+1';
-            el.style.left = x + 'px'; el.style.top = y + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 600);
+        function claimDaily() {
+            if(Date.now() > lastDaily + 86400000) {
+                userRef.update({ score: score + 10000, lastDaily: Date.now() });
+                tg.showAlert("10,000 bonus olindi!");
+            } else tg.showAlert("Ertaga qayting!");
         }
+
+        function loadChat(el) {
+            db.ref('messages').limitToLast(15).on('value', s => {
+                el.innerHTML = '';
+                s.forEach(m => el.innerHTML += `<div class="msg"><b>${m.val().name}:</b> ${m.val().text}</div>`);
+                el.scrollTop = el.scrollHeight;
+            });
+        }
+
+        function sendChat() {
+            const i = document.getElementById('msgInput');
+            if(i.value.trim()) { db.ref('messages').push({ name: user.first_name, text: i.value }); i.value = ''; }
+        }
+
+        function loadRank(el) {
+            db.ref('users').orderByChild('score').limitToLast(10).once('value', s => {
+                let p = []; s.forEach(c => p.push(c.val()));
+                p.reverse().forEach((x, i) => el.innerHTML += `<div class="rank-row"><span>${i+1}. ${x.name}</span><b>${Math.floor(x.score).toLocaleString()}</b></div>`);
+            });
+        }
+
+        // Admin logics
+        function sendGlobalMsg() {
+            const t = document.getElementById('admMsg').value;
+            if(t) db.ref('global_notification').set({ text: t, time: Date.now() });
+        }
+        function giveGlobalBonus() {
+            db.ref('users').once('value', s => s.forEach(c => db.ref('users/'+c.key).update({ score: (c.val().score || 0) + 100000 })));
+            tg.showAlert("Bonus yuborildi!");
+        }
+
+        db.ref('global_notification').on('value', s => {
+            const d = s.val(); if(d && Date.now() - d.time < 30000) tg.showPopup({ title: "📢 XABAR", message: d.text, buttons: [{type: "ok"}] });
+        });
+
+        // Offline mining logic
+        setInterval(() => { if(autoLevel > 0) { score += (autoLevel * 0.2); userRef.update({ score: score }); } }, 5000);
 
         function closePanel() { document.getElementById('overlay').style.display = 'none'; }
     </script>
