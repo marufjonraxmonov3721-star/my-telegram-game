@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raxmonov Gold Clicker: Empire Edition</title>
+    <title>Raxmonov Gold: Ultimate Empire</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -12,43 +12,44 @@
         :root { --gold: #ffd700; --bg: #0b0e11; --card: #1c2127; --green: #27ae60; }
         body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; user-select: none; }
         
-        /* Stats */
+        /* Stats Header */
         .header { margin-top: 20px; text-align: center; z-index: 10; }
-        #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
-        .league-badge { font-size: 11px; background: var(--green); padding: 2px 12px; border-radius: 20px; font-weight: bold; }
+        #score { font-size: 48px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); margin: 0; }
+        .league-badge { font-size: 11px; background: var(--green); padding: 3px 15px; border-radius: 20px; font-weight: bold; text-transform: uppercase; }
         .online-count { font-size: 10px; color: var(--green); margin-top: 5px; }
 
-        /* Game Area */
+        /* Coin Area */
         .game-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
-        .coin-btn { width: 210px; height: 210px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 100px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 8px solid #ffd700; transition: transform 0.05s; z-index: 5; }
+        .coin-btn { width: 220px; height: 220px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 110px; cursor: pointer; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); border: 8px solid #ffd700; transition: transform 0.05s; z-index: 5; }
         .coin-btn:active { transform: scale(0.92); }
 
-        /* Floating Text */
-        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; z-index: 100; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        .plus-one { position: absolute; color: var(--gold); font-size: 30px; font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-130px); } }
 
-        /* Bottom Nav */
+        /* Navigation */
         .bottom-nav { width: 100%; background: var(--card); border-radius: 25px 25px 0 0; padding: 15px 0; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 2px solid #333; z-index: 20; }
-        .nav-item { text-align: center; cursor: pointer; }
+        .nav-item { text-align: center; cursor: pointer; transition: 0.2s; }
+        .nav-item:active { transform: scale(0.9); }
         .nav-item span { font-size: 9px; color: #aaa; display: block; }
         .nav-item b { font-size: 11px; color: var(--gold); }
 
-        /* Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
-        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; border: 1px solid #333; }
-        .close-btn { background: #e74c3c; border: none; padding: 12px 30px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+        /* Admin & Modals */
+        .admin-tag { position: fixed; top: 10px; right: 10px; background: #e74c3c; font-size: 10px; padding: 6px 12px; border-radius: 8px; display: none; cursor: pointer; z-index: 1001; font-weight: bold; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
+        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; border: 1px solid #444; }
+        .close-btn { background: #555; border: none; padding: 12px 40px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
-        /* Admin & UI Elements */
-        .admin-tag { position: fixed; top: 10px; right: 10px; background: #e74c3c; font-size: 10px; padding: 5px 10px; border-radius: 8px; display: none; cursor: pointer; z-index: 1001; }
-        .shop-item, .rank-row, .msg { background: #2c3e50; margin-bottom: 10px; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .chat-input { display: flex; gap: 5px; width: 90%; margin-bottom: 10px; }
-        .chat-input input { flex-grow: 1; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #0b0e11; color: white; }
+        /* Components */
+        .shop-item, .rank-row, .msg { background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .chat-area { display: flex; flex-direction: column; height: 100%; }
+        .chat-input { display: flex; gap: 8px; margin-top: 10px; }
+        .chat-input input { flex-grow: 1; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #000; color: white; }
     </style>
 </head>
 <body>
 
-    <div id="admin-access" class="admin-tag" onclick="openPanel('admin')">⚙️ ADMIN</div>
+    <div id="admin-access" class="admin-tag" onclick="openPanel('admin')">⚙️ ADMIN PANEL</div>
 
     <div class="header">
         <div id="league" class="league-badge">Bronze League</div>
@@ -69,9 +70,9 @@
     </div>
 
     <div id="overlay" class="overlay">
-        <h2 id="panel-title" style="color: var(--gold); margin-bottom: 10px;">Sarlavha</h2>
+        <h2 id="panel-title" style="color: var(--gold); margin-bottom: 15px; letter-spacing: 1px;">Sarlavha</h2>
         <div class="content-box" id="panel-content"></div>
-        <div id="chat-input-area" class="chat-input" style="display:none;">
+        <div id="chat-input-area" class="chat-input" style="display:none; width: 90%;">
             <input id="msgInput" placeholder="Xabar yozing...">
             <button class="buy-btn" onclick="sendChat()">></button>
         </div>
@@ -94,21 +95,24 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const ADMIN_ID = 7385372033; // 7385372033
-        const user = tg.initDataUnsafe?.user || { id: "dev_user", first_name: "O'yinchi" };
+        // --- ADMIN ID O'RNATILDI ---
+        const ADMIN_ID = 7385372033; 
+
+        const user = tg.initDataUnsafe?.user || { id: "test_dev", first_name: "O'yinchi" };
         const userRef = db.ref('users/' + user.id);
         
         let score = 0, autoLevel = 0, lastWheel = 0, lastDaily = 0;
 
-        // Admin panelni ko'rsatish
-        if(user.id == ADMIN_ID) document.getElementById('admin-access').style.display = 'block';
+        if(user.id == ADMIN_ID) {
+            document.getElementById('admin-access').style.display = 'block';
+        }
 
-        // Online tizimi
+        // Online Status
         const onlineRef = db.ref('online/' + user.id);
         onlineRef.set(true); onlineRef.onDisconnect().remove();
         db.ref('online').on('value', s => document.getElementById('online-users').innerText = s.numChildren());
 
-        // Ma'lumotlarni yuklash
+        // Data Sync
         userRef.on('value', (snap) => {
             const data = snap.val();
             if(data) {
@@ -152,53 +156,58 @@
 
             if(type === 'wheel') {
                 document.getElementById('panel-title').innerText = "Omad G'ildiragi";
-                content.innerHTML = `<div style="text-align:center;"><div style="font-size:60px; margin:20px;">🎡</div>
-                    <button class="buy-btn" onclick="spinWheel()">AYLANTIRISH</button><p id="wTime"></p></div>`;
+                content.innerHTML = `<div style="text-align:center;"><div style="font-size:80px; margin:20px;">🎡</div>
+                    <button class="buy-btn" style="padding: 15px 30px;" onclick="spinWheel()">AYLANTIRISH</button></div>`;
             } else if(type === 'shop') {
-                document.getElementById('panel-title').innerText = "Botlar Magazini";
-                const bots = [{l:1, p:10000}, {l:2, p:50000}, {l:3, p:200000}];
+                document.getElementById('panel-title').innerText = "Mining Botlar";
+                const bots = [{l:1, p:10000, s:0.5}, {l:2, p:50000, s:2}, {l:3, p:200000, s:10}];
                 bots.forEach(b => {
-                    content.innerHTML += `<div class="shop-item"><span>Lvl ${b.l} Bot</span><button class="buy-btn" onclick="buyBot(${b.l},${b.p})">${b.p}</button></div>`;
+                    content.innerHTML += `<div class="shop-item"><span><b>Lvl ${b.l} Bot</b><br><small>+${b.s}/sek</small></span><button class="buy-btn" onclick="buyBot(${b.l},${b.p})">${b.p}</button></div>`;
                 });
             } else if(type === 'chat') {
                 document.getElementById('panel-title').innerText = "Global Chat";
                 chatInput.style.display = 'flex'; loadChat(content);
             } else if(type === 'rank') {
-                document.getElementById('panel-title').innerText = "Top 10";
+                document.getElementById('panel-title').innerText = "Top 10 O'yinchi";
                 loadRank(content);
             } else if(type === 'admin') {
-                document.getElementById('panel-title').innerText = "Admin Panel";
-                content.innerHTML = `<input id="admMsg" placeholder="Global xabar..." style="width:90%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:none; border-radius:10px;">
-                    <button class="buy-btn" style="width:100%;" onclick="sendGlobalMsg()">XABAR YUBORISH</button>
-                    <button class="buy-btn" style="width:100%; margin-top:10px; background:#27ae60;" onclick="giveGlobalBonus()">HAMMAGA 100K BONUS</button>`;
+                document.getElementById('panel-title').innerText = "Admin Boshqaruvi";
+                content.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <input id="admMsg" placeholder="Hamma uchun xabar..." style="padding:12px; background:#000; color:#fff; border:1px solid #444; border-radius:10px;">
+                        <button class="buy-btn" style="width:100%;" onclick="sendGlobalMsg()">XABAR YUBORISH</button>
+                        <hr style="width:100%; border:0.5px solid #333; margin:10px 0;">
+                        <button class="buy-btn" style="width:100%; background:#27ae60;" onclick="giveGlobalBonus()">HAMMAGA 100K BONUS</button>
+                        <button class="buy-btn" style="width:100%; background:#2980b9;" onclick="userRef.update({score: score + 1000000})">O'ZIMGA +1M GOLD</button>
+                    </div>`;
             }
         }
 
-        // Funksiyalar
+        // Logic Functions
         function spinWheel() {
             if(Date.now() > lastWheel + 21600000) {
                 let win = Math.floor(Math.random() * 50000) + 5000;
                 userRef.update({ score: score + win, lastWheel: Date.now() });
-                tg.showAlert("Yutuq: " + win + " Raxmonov!"); closePanel();
-            } else tg.showAlert("Hali vaqt bor!");
+                tg.showAlert("Tabriklaymiz! " + win.toLocaleString() + " Raxmonov yutdingiz!"); closePanel();
+            } else tg.showAlert("G'ildirakni har 6 soatda aylantirish mumkin!");
         }
 
         function buyBot(l, p) {
-            if(score >= p) { userRef.update({ score: score - p, autoLevel: l }); tg.showAlert("Bot olindi!"); closePanel(); }
+            if(score >= p) { userRef.update({ score: score - p, autoLevel: l }); tg.showAlert("Bot ishga tushirildi!"); closePanel(); }
             else tg.showAlert("Mablag' yetarli emas!");
         }
 
         function claimDaily() {
             if(Date.now() > lastDaily + 86400000) {
                 userRef.update({ score: score + 10000, lastDaily: Date.now() });
-                tg.showAlert("10,000 bonus olindi!");
-            } else tg.showAlert("Ertaga qayting!");
+                tg.showAlert("Kunlik 10,000 bonus olindi!");
+            } else tg.showAlert("Ertaga yana keling!");
         }
 
         function loadChat(el) {
             db.ref('messages').limitToLast(15).on('value', s => {
                 el.innerHTML = '';
-                s.forEach(m => el.innerHTML += `<div class="msg"><b>${m.val().name}:</b> ${m.val().text}</div>`);
+                s.forEach(m => el.innerHTML += `<div class="msg" style="flex-direction:column; align-items:start;"><b>${m.val().name}</b><span>${m.val().text}</span></div>`);
                 el.scrollTop = el.scrollHeight;
             });
         }
@@ -215,22 +224,45 @@
             });
         }
 
-        // Admin logics
+        // ADMIN LOGIKALARI
         function sendGlobalMsg() {
             const t = document.getElementById('admMsg').value;
-            if(t) db.ref('global_notification').set({ text: t, time: Date.now() });
+            if(t) {
+                db.ref('global_notification').set({ text: t, time: Date.now() });
+                tg.showAlert("Xabar yuborildi!");
+            }
         }
+
         function giveGlobalBonus() {
-            db.ref('users').once('value', s => s.forEach(c => db.ref('users/'+c.key).update({ score: (c.val().score || 0) + 100000 })));
-            tg.showAlert("Bonus yuborildi!");
+            tg.showConfirm("Hamma o'yinchilarga 100k bonus bermoqchimisiz?", (confirm) => {
+                if(confirm) {
+                    const ref = db.ref('users');
+                    ref.once('value', snap => {
+                        const updates = {};
+                        snap.forEach(child => {
+                            updates[`/${child.key}/score`] = (child.val().score || 0) + 100000;
+                        });
+                        ref.update(updates).then(() => tg.showAlert("Barcha o'yinchilarga 100,000 bonus berildi!"));
+                    });
+                }
+            });
         }
 
         db.ref('global_notification').on('value', s => {
-            const d = s.val(); if(d && Date.now() - d.time < 30000) tg.showPopup({ title: "📢 XABAR", message: d.text, buttons: [{type: "ok"}] });
+            const d = s.val(); 
+            if(d && Date.now() - d.time < 30000) {
+                tg.showPopup({ title: "📢 ADMIN XABARI", message: d.text, buttons: [{type: "ok"}] });
+            }
         });
 
-        // Offline mining logic
-        setInterval(() => { if(autoLevel > 0) { score += (autoLevel * 0.2); userRef.update({ score: score }); } }, 5000);
+        // Mining Loop (Auto-farmer)
+        setInterval(() => { 
+            if(autoLevel > 0) { 
+                let gain = autoLevel === 1 ? 0.5 : autoLevel === 2 ? 2 : 10;
+                score += gain; 
+                userRef.update({ score: score }); 
+            } 
+        }, 1000);
 
         function closePanel() { document.getElementById('overlay').style.display = 'none'; }
     </script>
