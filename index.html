@@ -3,57 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raxmonov Gold Clicker Pro</title>
+    <title>Raxmonov Gold: Empire</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        :root { --gold: #ffd700; --bg: #0b0e11; --card: #1c2127; }
+        :root { --gold: #ffd700; --bg: #0b0e11; --card: #1c2127; --green: #27ae60; }
         body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
         /* Stats */
-        .header { margin-top: 25px; text-align: center; }
-        #score { font-size: 42px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
-        .currency-name { font-size: 12px; color: var(--gold); letter-spacing: 2px; font-weight: bold; }
+        .header { margin-top: 20px; text-align: center; }
+        #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
+        .league-badge { font-size: 12px; color: #fff; background: var(--green); padding: 2px 10px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
+        
+        .online-count { font-size: 10px; color: var(--green); margin-top: 5px; }
 
         /* Game Area */
         .game-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
-        .coin-btn { width: 190px; height: 190px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 90px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 6px solid #ffd700; transition: transform 0.05s; }
+        .coin-btn { width: 210px; height: 210px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 100px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 8px solid #ffd700; transition: transform 0.05s; }
         .coin-btn:active { transform: scale(0.92); }
 
         /* Floating Text */
-        .plus-one { position: absolute; color: var(--gold); font-size: 24px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; z-index: 100; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; z-index: 100; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
 
-        /* Bottom Controls - 5 ta element uchun */
-        .bottom-nav { width: 100%; background: var(--card); border-radius: 20px 20px 0 0; padding: 12px 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-top: 2px solid #333; }
+        /* Bottom Nav */
+        .bottom-nav { width: 100%; background: var(--card); border-radius: 25px 25px 0 0; padding: 15px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; border-top: 2px solid #333; }
         .nav-item { text-align: center; cursor: pointer; }
-        .nav-item span { font-size: 9px; color: #aaa; display: block; margin-bottom: 2px; }
-        .nav-item b { font-size: 11px; color: var(--gold); }
+        .nav-item span { font-size: 10px; color: #aaa; display: block; }
+        .nav-item b { font-size: 12px; color: var(--gold); }
 
-        /* Overlay & Modals */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
-        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 15px; border: 1px solid #333; }
-        .close-btn { background: #e74c3c; border: none; padding: 12px 25px; border-radius: 10px; color: white; font-weight: bold; }
+        /* Modals */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
+        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; }
+        .close-btn { background: #e74c3c; border: none; padding: 12px 30px; border-radius: 10px; color: white; font-weight: bold; }
 
-        /* Chat & Rank Styles */
-        .msg, .rank-row { font-size: 13px; background: #2c3e50; padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .rank-row b { color: var(--gold); }
-        .chat-input { display: flex; gap: 5px; margin-top: 10px; width: 90%; }
-        .chat-input input { flex-grow: 1; background: #0b0e11; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; }
-
-        /* Shop Styles */
-        .shop-item { background: #2c3e50; margin-bottom: 10px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: var(--gold); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        /* Wheel Style */
+        .wheel-box { text-align: center; padding: 20px; }
+        .wheel-btn { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 20px auto; background: #2c3e50; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="currency-name">RAXMONOV GOLD</div>
+        <div id="league" class="league-badge">Bronze League</div>
         <h1 id="score">0</h1>
-        <div style="font-size: 12px; margin-top: 5px; color: #27ae60;">⚡ <span id="energy-text">1000/1000</span></div>
+        <div class="online-count">● <span id="online-users">1</span> Online</div>
     </div>
 
     <div class="game-area">
@@ -61,20 +57,15 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="openPanel('shop')"><span>Botlar</span><b>Shop</b></div>
+        <div class="nav-item" onclick="openPanel('shop')"><span>Botlar</span><b>Mining</b></div>
         <div class="nav-item" onclick="openPanel('chat')"><span>Chat</span><b>Global</b></div>
+        <div class="nav-item" onclick="openPanel('wheel')"><span>Omad</span><b>G'ildirak</b></div>
         <div class="nav-item" onclick="openPanel('rank')"><span>Top</span><b>Reyting</b></div>
-        <div class="nav-item" onclick="openPanel('ref')"><span>Do'stlar</span><b>Referal</b></div>
-        <div class="nav-item" onclick="claimDaily()"><span>Bonus</span><b id="daily-btn">Olish</b></div>
     </div>
 
     <div id="overlay" class="overlay">
-        <h2 id="panel-title" style="color: var(--gold); margin-bottom: 15px;">Sarlavha</h2>
+        <h2 id="panel-title" style="color: var(--gold);">Sarlavha</h2>
         <div class="content-box" id="panel-content"></div>
-        <div id="chat-controls" class="chat-input" style="display:none;">
-            <input id="msgInput" placeholder="Xabar yozing...">
-            <button class="buy-btn" onclick="sendChat()">></button>
-        </div>
         <button class="close-btn" onclick="closePanel()">Yopish</button>
     </div>
 
@@ -94,141 +85,115 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const user = tg.initDataUnsafe?.user || { id: "dev", first_name: "O'yinchi" };
-        const startParam = tg.initDataUnsafe?.start_param;
+        const user = tg.initDataUnsafe?.user || { id: "dev_" + Math.random(), first_name: "O'yinchi" };
         const userRef = db.ref('users/' + user.id);
+        const onlineRef = db.ref('online/' + user.id);
 
-        let score = 0, multi = 1, energy = 1000, lastDaily = 0, autoLevel = 0;
+        let score = 0, autoLevel = 0, lastWheel = 0;
+
+        // 1. ONLINE STATUS & DATA SYNC
+        onlineRef.set(true);
+        onlineRef.onDisconnect().remove();
+
+        db.ref('online').on('value', s => {
+            document.getElementById('online-users').innerText = s.numChildren();
+        });
 
         userRef.on('value', (snap) => {
             const data = snap.val();
             if(data) {
                 score = data.score || 0;
-                multi = data.multi || 1;
-                energy = data.energy || 0;
-                lastDaily = data.lastDaily || 0;
                 autoLevel = data.autoLevel || 0;
-                
-                // Offline Mining
-                if(data.lastCheck && autoLevel > 0) {
-                    const diff = Math.floor((Date.now() - data.lastCheck) / 1000);
-                    const mined = diff * (autoLevel * 0.5);
-                    if(mined > 1) {
-                        score += mined;
-                        userRef.update({ score: score, lastCheck: Date.now() });
-                        tg.showAlert("Botlar sizga " + Math.floor(mined) + " Raxmonov yig'di!");
-                    }
-                }
-                document.getElementById('score').innerText = Math.floor(score).toLocaleString();
-                document.getElementById('energy-text').innerText = energy + "/1000";
+                lastWheel = data.lastWheel || 0;
+                updateUI();
             } else {
-                userRef.set({ name: user.first_name, score: 0, multi: 1, energy: 1000, autoLevel: 0, lastCheck: Date.now() });
-                if(startParam && startParam != user.id) {
-                    db.ref('users/' + startParam).transaction(u => { if(u) u.score += 50000; return u; });
-                }
+                userRef.set({ name: user.first_name, score: 0, autoLevel: 0, lastWheel: 0 });
             }
         });
 
+        // 2. TAP SYSTEM
         document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if(energy >= multi) {
-                score += multi; energy -= multi;
-                userRef.update({ score: score, energy: energy, lastCheck: Date.now() });
-                createPlusText(e.touches[0].clientX, e.touches[0].clientY);
-                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            }
+            score += 1;
+            userRef.update({ score: score });
+            createPlusText(e.touches[0].clientX, e.touches[0].clientY);
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         });
+
+        function updateUI() {
+            document.getElementById('score').innerText = Math.floor(score).toLocaleString();
+            let l = "Bronze";
+            if(score > 100000) l = "Silver";
+            if(score > 1000000) l = "Gold";
+            if(score > 10000000) l = "Diamond";
+            document.getElementById('league').innerText = l + " League";
+        }
+
+        // 3. PANELS
+        function openPanel(type) {
+            const overlay = document.getElementById('overlay');
+            const content = document.getElementById('panel-content');
+            overlay.style.display = 'flex';
+            content.innerHTML = '';
+
+            if(type === 'wheel') {
+                document.getElementById('panel-title').innerText = "Omad G'ildiragi";
+                content.innerHTML = `<div class="wheel-box">
+                    <p>Har 6 soatda bir marta aylantiring!</p>
+                    <div class="wheel-btn" id="wBtn" onclick="spinWheel()">🎡</div>
+                    <p id="wheel-timer"></p>
+                </div>`;
+                updateWheelTimer();
+            } else if(type === 'shop') {
+                document.getElementById('panel-title').innerText = "Botlar";
+                content.innerHTML = `<p>Botlar sekundiga oltin yig'adi!</p>
+                    <button class="close-btn" style="background:var(--gold); color:black;" onclick="buyBot()">Bot Sotib olish (10,000)</button>`;
+            } else if(type === 'chat') {
+                document.getElementById('panel-title').innerText = "Global Chat";
+                content.innerHTML = "<p>Chat tez kunda yangilanadi...</p>";
+            } else if(type === 'rank') {
+                document.getElementById('panel-title').innerText = "Top Reyting";
+                db.ref('users').orderByChild('score').limitToLast(10).once('value', snap => {
+                    snap.forEach(c => {
+                        content.innerHTML = `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;">
+                            <span>${c.val().name}</span><b>${Math.floor(c.val().score).toLocaleString()}</b>
+                        </div>` + content.innerHTML;
+                    });
+                });
+            }
+        }
+
+        // 4. WHEEL LOGIC
+        function spinWheel() {
+            const now = Date.now();
+            if(now > lastWheel + 21600000) { // 6 soat
+                const win = Math.floor(Math.random() * 50000) + 5000;
+                score += win;
+                userRef.update({ score: score, lastWheel: now });
+                tg.showAlert("Tabriklaymiz! Siz " + win + " Raxmonov yutdingiz!");
+                closePanel();
+            } else {
+                tg.showAlert("Hali vaqt bor!");
+            }
+        }
+
+        function updateWheelTimer() {
+            const timer = document.getElementById('wheel-timer');
+            if(!timer) return;
+            const now = Date.now();
+            const left = (lastWheel + 21600000) - now;
+            if(left > 0) timer.innerText = "Keyingi urinish: " + Math.ceil(left/3600000) + " soatdan keyin";
+            else timer.innerText = "Hozir aylantiring!";
+        }
 
         function createPlusText(x, y) {
             const el = document.createElement('div');
-            el.className = 'plus-one'; el.innerText = '+' + multi;
+            el.className = 'plus-one'; el.innerText = '+1';
             el.style.left = x + 'px'; el.style.top = y + 'px';
             document.body.appendChild(el);
-            setTimeout(() => el.remove(), 700);
+            setTimeout(() => el.remove(), 600);
         }
 
-        function openPanel(type) {
-            const overlay = document.getElementById('overlay');
-            const title = document.getElementById('panel-title');
-            const content = document.getElementById('panel-content');
-            const chatControls = document.getElementById('chat-controls');
-            
-            overlay.style.display = 'flex';
-            chatControls.style.display = 'none';
-            content.innerHTML = 'Yuklanmoqda...';
-
-            if(type === 'shop') {
-                title.innerText = "Botlar Magazini";
-                content.innerHTML = '';
-                const bots = [{l:1, p:10000, s:"50/soat"}, {l:2, p:50000, s:"200/soat"}, {l:3, p:200000, s:"1000/soat"}];
-                bots.forEach(b => {
-                    content.innerHTML += `<div class="shop-item">
-                        <div><b>Bot Lvl ${b.l}</b><br><small>${b.s}</small></div>
-                        <button class="buy-btn" onclick="buyBot(${b.l}, ${b.p})">${b.p}</button>
-                    </div>`;
-                });
-            } else if(type === 'chat') {
-                title.innerText = "Global Chat";
-                chatControls.style.display = 'flex';
-                loadChat(content);
-            } else if(type === 'rank') {
-                title.innerText = "Top 10 Reyting";
-                loadRank(content);
-            } else if(type === 'ref') {
-                title.innerText = "Referal";
-                const link = `https://t.me/Games_RM_bot /app?startapp=${user.id}`;
-                content.innerHTML = `<div style="text-align:center;">
-                    <p>Har bir do'st uchun <b>50,000 Raxmonov</b>!</p>
-                    <input value="${link}" readonly style="width:90%; padding:10px; background:#000; color:var(--gold); border-radius:10px; border:none; margin-bottom:10px;">
-                    <button class="buy-btn" style="width:100%;" onclick="tg.openTelegramLink('https://t.me/share/url?url=${link}')">DO'STLARGA YUBORISH</button>
-                </div>`;
-            }
-        }
-
-        function buyBot(l, p) {
-            if(score >= p) { userRef.update({ score: score - p, autoLevel: l }); tg.showAlert("Bot olindi!"); closePanel(); }
-            else tg.showAlert("Mablag' yetarli emas!");
-        }
-
-        function loadChat(el) {
-            db.ref('messages').limitToLast(15).on('value', snap => {
-                el.innerHTML = '';
-                snap.forEach(m => {
-                    const d = m.val();
-                    el.innerHTML += `<div class="msg"><span><b>${d.name}:</b> ${d.text}</span></div>`;
-                });
-                el.scrollTop = el.scrollHeight;
-            });
-        }
-
-        function sendChat() {
-            const input = document.getElementById('msgInput');
-            if(input.value.trim()) {
-                db.ref('messages').push({ name: user.first_name, text: input.value });
-                input.value = '';
-            }
-        }
-
-        function loadRank(el) {
-            db.ref('users').orderByChild('score').limitToLast(10).once('value', snap => {
-                el.innerHTML = '';
-                let players = [];
-                snap.forEach(c => { players.push(c.val()); });
-                players.reverse().forEach((p, i) => {
-                    el.innerHTML += `<div class="rank-row"><span>${i+1}. ${p.name}</span><b>${Math.floor(p.score).toLocaleString()}</b></div>`;
-                });
-            });
-        }
-
-        function claimDaily() {
-            const now = Date.now();
-            if(now > lastDaily + 86400000) {
-                userRef.update({ score: score + 10000, lastDaily: now });
-                tg.showAlert("10,000 Raxmonov olindi!");
-            } else tg.showAlert("24 soatdan keyin bonus !");
-        }
-
-        setInterval(() => { if(energy < 1000) { energy = Math.min(1000, energy + 5); userRef.update({ energy: energy }); } }, 3000);
         function closePanel() { document.getElementById('overlay').style.display = 'none'; }
     </script>
 </body>
