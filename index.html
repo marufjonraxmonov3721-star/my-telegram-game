@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raxmonov Gold Clicker</title>
+    <title>Raxmonov Gold Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -13,36 +13,35 @@
         body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
         /* Stats */
-        .header { margin-top: 30px; text-align: center; }
-        #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
-        .currency-name { font-size: 14px; color: var(--gold); letter-spacing: 2px; }
+        .header { margin-top: 25px; text-align: center; }
+        #score { font-size: 42px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); margin: 0; }
+        .currency-name { font-size: 12px; color: var(--gold); letter-spacing: 2px; font-weight: bold; }
 
         /* Game Area */
         .game-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; }
-        .coin-btn { width: 200px; height: 200px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 100px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 6px solid #ffd700; transition: transform 0.05s; }
+        .coin-btn { width: 190px; height: 190px; background: radial-gradient(circle, #ffe066, #b8860b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 90px; cursor: pointer; box-shadow: 0 0 40px rgba(255, 215, 0, 0.2); border: 6px solid #ffd700; transition: transform 0.05s; }
         .coin-btn:active { transform: scale(0.92); }
 
         /* Floating Text */
-        .plus-one { position: absolute; color: var(--gold); font-size: 24px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; }
+        .plus-one { position: absolute; color: var(--gold); font-size: 24px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; z-index: 100; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
-        /* Bottom Controls */
-        .bottom-nav { width: 100%; background: var(--card); border-radius: 20px 20px 0 0; padding: 15px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; border-top: 2px solid #333; }
+        /* Bottom Controls - 5 ta element uchun */
+        .bottom-nav { width: 100%; background: var(--card); border-radius: 20px 20px 0 0; padding: 12px 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-top: 2px solid #333; }
         .nav-item { text-align: center; cursor: pointer; }
-        .nav-item span { font-size: 10px; color: #aaa; display: block; }
-        .nav-item b { font-size: 12px; color: var(--gold); }
+        .nav-item span { font-size: 9px; color: #aaa; display: block; margin-bottom: 2px; }
+        .nav-item b { font-size: 11px; color: var(--gold); }
 
-        /* Modal / Chat / Shop */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; z-index: 100; padding: 20px 0; }
-        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 20px; }
-        .close-btn { background: #e74c3c; border: none; padding: 10px 20px; border-radius: 10px; color: white; font-weight: bold; }
+        /* Overlay & Modals */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; z-index: 1000; padding: 20px 0; }
+        .content-box { width: 90%; background: var(--card); border-radius: 15px; padding: 15px; overflow-y: auto; flex-grow: 1; margin-bottom: 15px; border: 1px solid #333; }
+        .close-btn { background: #e74c3c; border: none; padding: 12px 25px; border-radius: 10px; color: white; font-weight: bold; }
 
-        /* Chat Styles */
-        #chat-messages { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .msg { font-size: 13px; background: #2c3e50; padding: 8px; border-radius: 10px; }
-        .msg b { color: var(--gold); }
-        .chat-input { display: flex; gap: 5px; margin-top: 10px; }
-        .chat-input input { flex-grow: 1; background: #0b0e11; border: 1px solid #444; color: white; padding: 10px; border-radius: 10px; }
+        /* Chat & Rank Styles */
+        .msg, .rank-row { font-size: 13px; background: #2c3e50; padding: 10px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .rank-row b { color: var(--gold); }
+        .chat-input { display: flex; gap: 5px; margin-top: 10px; width: 90%; }
+        .chat-input input { flex-grow: 1; background: #0b0e11; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; }
 
         /* Shop Styles */
         .shop-item { background: #2c3e50; margin-bottom: 10px; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -62,15 +61,20 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item" onclick="openPanel('shop')"><span>Botlar</span><b>Magazin</b></div>
+        <div class="nav-item" onclick="openPanel('shop')"><span>Botlar</span><b>Shop</b></div>
         <div class="nav-item" onclick="openPanel('chat')"><span>Chat</span><b>Global</b></div>
+        <div class="nav-item" onclick="openPanel('rank')"><span>Top</span><b>Reyting</b></div>
         <div class="nav-item" onclick="openPanel('ref')"><span>Do'stlar</span><b>Referal</b></div>
         <div class="nav-item" onclick="claimDaily()"><span>Bonus</span><b id="daily-btn">Olish</b></div>
     </div>
 
     <div id="overlay" class="overlay">
-        <h2 id="panel-title" style="color: var(--gold);">Sarlavha</h2>
+        <h2 id="panel-title" style="color: var(--gold); margin-bottom: 15px;">Sarlavha</h2>
         <div class="content-box" id="panel-content"></div>
+        <div id="chat-controls" class="chat-input" style="display:none;">
+            <input id="msgInput" placeholder="Xabar yozing...">
+            <button class="buy-btn" onclick="sendChat()">></button>
+        </div>
         <button class="close-btn" onclick="closePanel()">Yopish</button>
     </div>
 
@@ -90,48 +94,41 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const user = tg.initDataUnsafe?.user || { id: "dev", first_name: "Developer" };
-        const startParam = tg.initDataUnsafe?.start_param; // Referal ID
+        const user = tg.initDataUnsafe?.user || { id: "dev", first_name: "O'yinchi" };
+        const startParam = tg.initDataUnsafe?.start_param;
         const userRef = db.ref('users/' + user.id);
 
-        let score = 0, multi = 1, energy = 1000, lastDaily = 0, autoLevel = 0, lastCheck = Date.now();
+        let score = 0, multi = 1, energy = 1000, lastDaily = 0, autoLevel = 0;
 
-        // 1. DATA SYNC & AUTO-FARMER
         userRef.on('value', (snap) => {
             const data = snap.val();
             if(data) {
                 score = data.score || 0;
                 multi = data.multi || 1;
-                energy = data.energy || 1000;
+                energy = data.energy || 0;
                 lastDaily = data.lastDaily || 0;
                 autoLevel = data.autoLevel || 0;
                 
-                // Offline Mining Hisoblash
+                // Offline Mining
                 if(data.lastCheck && autoLevel > 0) {
-                    const diffSeconds = Math.floor((Date.now() - data.lastCheck) / 1000);
-                    const mined = diffSeconds * (autoLevel * 0.5); // Har level uchun sekundiga 0.5 Raxmonov
-                    if(mined > 0) {
+                    const diff = Math.floor((Date.now() - data.lastCheck) / 1000);
+                    const mined = diff * (autoLevel * 0.5);
+                    if(mined > 1) {
                         score += mined;
                         userRef.update({ score: score, lastCheck: Date.now() });
-                        if(mined > 1) tg.showAlert("Siz yo'qligingizda botlar " + Math.floor(mined) + " Raxmonov yig'di!");
+                        tg.showAlert("Botlar sizga " + Math.floor(mined) + " Raxmonov yig'di!");
                     }
                 }
-
                 document.getElementById('score').innerText = Math.floor(score).toLocaleString();
                 document.getElementById('energy-text').innerText = energy + "/1000";
             } else {
-                // Yangi foydalanuvchi bo'lsa va referal orqali kelgan bo'lsa
                 userRef.set({ name: user.first_name, score: 0, multi: 1, energy: 1000, autoLevel: 0, lastCheck: Date.now() });
                 if(startParam && startParam != user.id) {
-                    db.ref('users/' + startParam).transaction(u => {
-                        if(u) { u.score += 50000; }
-                        return u;
-                    });
+                    db.ref('users/' + startParam).transaction(u => { if(u) u.score += 50000; return u; });
                 }
             }
         });
 
-        // 2. TAP FUNCTION
         document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             if(energy >= multi) {
@@ -150,84 +147,89 @@
             setTimeout(() => el.remove(), 700);
         }
 
-        // 3. PANELS (Magazin, Chat, Ref)
         function openPanel(type) {
             const overlay = document.getElementById('overlay');
             const title = document.getElementById('panel-title');
             const content = document.getElementById('panel-content');
+            const chatControls = document.getElementById('chat-controls');
+            
             overlay.style.display = 'flex';
-            content.innerHTML = '';
+            chatControls.style.display = 'none';
+            content.innerHTML = 'Yuklanmoqda...';
 
             if(type === 'shop') {
-                title.innerText = "Mining Botlar";
-                const bots = [
-                    {lvl: 1, price: 10000, speed: "50/soat"},
-                    {lvl: 2, price: 50000, speed: "200/soat"},
-                    {lvl: 3, price: 200000, speed: "1000/soat"}
-                ];
+                title.innerText = "Botlar Magazini";
+                content.innerHTML = '';
+                const bots = [{l:1, p:10000, s:"50/soat"}, {l:2, p:50000, s:"200/soat"}, {l:3, p:200000, s:"1000/soat"}];
                 bots.forEach(b => {
                     content.innerHTML += `<div class="shop-item">
-                        <div><b>Bot Lvl ${b.lvl}</b><br><small>${b.speed}</small></div>
-                        <button class="buy-btn" onclick="buyBot(${b.lvl}, ${b.price})">${b.price}</button>
+                        <div><b>Bot Lvl ${b.l}</b><br><small>${b.s}</small></div>
+                        <button class="buy-btn" onclick="buyBot(${b.l}, ${b.p})">${b.p}</button>
                     </div>`;
                 });
             } else if(type === 'chat') {
                 title.innerText = "Global Chat";
-                content.innerHTML = `<div id="chat-messages"></div>
-                    <div class="chat-input"><input id="msgInput" placeholder="Xabar..."><button class="buy-btn" onclick="sendChat()">></button></div>`;
-                loadChat();
+                chatControls.style.display = 'flex';
+                loadChat(content);
+            } else if(type === 'rank') {
+                title.innerText = "Top 10 Reyting";
+                loadRank(content);
             } else if(type === 'ref') {
-                title.innerText = "Referal Tizimi";
-                const link = `https://t.me/BOTINGIZ_NOM_BOT/app?startapp=${user.id}`;
+                title.innerText = "Referal";
+                const link = `https://t.me/ /app?startapp=${user.id}`;
                 content.innerHTML = `<div style="text-align:center;">
-                    <p>Har bir do'st uchun <b>50,000 Raxmonov</b>!</p>
-                    <input value="${link}" readonly style="width:100%; padding:10px; background:#000; color:var(--gold); border:none; border-radius:10px;">
-                    <button class="buy-btn" style="margin-top:15px; width:100%;" onclick="tg.openTelegramLink('https://t.me/share/url?url=${link}')">DO'STLARGA YUBORISH</button>
+                    <p>Har bir do'st uchun <@Games_RM_bot>50,000 Raxmonov</b>!</p>
+                    <input value="${link}" readonly style="width:90%; padding:10px; background:#000; color:var(--gold); border-radius:10px; border:none; margin-bottom:10px;">
+                    <button class="buy-btn" style="width:100%;" onclick="tg.openTelegramLink('https://t.me/share/url?url=${link}')">DO'STLARGA YUBORISH</button>
                 </div>`;
             }
         }
 
-        // 4. AUTO-BOT SOTIB OLISH
-        window.buyBot = (lvl, price) => {
-            if(score >= price) {
-                userRef.update({ score: score - price, autoLevel: lvl });
-                tg.showAlert("Bot Lvl " + lvl + " sotib olindi!");
-                closePanel();
-            } else tg.showAlert("Mablag' yetarli emas!");
+        function buyBot(l, p) {
+            if(score >= p) { userRef.update({ score: score - p, autoLevel: l }); tg.showAlert("Bot olindi!"); closePanel(); }
+            else tg.showAlert("Mablag' yetarli emas!");
         }
 
-        // 5. CHAT FUNCTION
-        function sendChat() {
-            const input = document.getElementById('msgInput');
-            if(input.value.trim() != "") {
-                db.ref('messages').push({ name: user.first_name, text: input.value, time: Date.now() });
-                input.value = "";
-            }
-        }
-        function loadChat() {
-            db.ref('messages').limitToLast(20).on('value', snap => {
-                const box = document.getElementById('chat-messages');
-                if(!box) return;
-                box.innerHTML = '';
+        function loadChat(el) {
+            db.ref('messages').limitToLast(15).on('value', snap => {
+                el.innerHTML = '';
                 snap.forEach(m => {
                     const d = m.val();
-                    box.innerHTML += `<div class="msg"><b>${d.name}:</b> ${d.text}</div>`;
+                    el.innerHTML += `<div class="msg"><span><b>${d.name}:</b> ${d.text}</span></div>`;
                 });
-                box.scrollTop = box.scrollHeight;
+                el.scrollTop = el.scrollHeight;
             });
         }
 
-        function closePanel() { document.getElementById('overlay').style.display = 'none'; }
-        
-        // 6. ENERGY & DAILY
-        setInterval(() => { if(energy < 1000) { energy = Math.min(1000, energy + 5); userRef.update({ energy: energy }); } }, 3000);
+        function sendChat() {
+            const input = document.getElementById('msgInput');
+            if(input.value.trim()) {
+                db.ref('messages').push({ name: user.first_name, text: input.value });
+                input.value = '';
+            }
+        }
+
+        function loadRank(el) {
+            db.ref('users').orderByChild('score').limitToLast(10).once('value', snap => {
+                el.innerHTML = '';
+                let players = [];
+                snap.forEach(c => { players.push(c.val()); });
+                players.reverse().forEach((p, i) => {
+                    el.innerHTML += `<div class="rank-row"><span>${i+1}. ${p.name}</span><b>${Math.floor(p.score).toLocaleString()}</b></div>`;
+                });
+            });
+        }
+
         function claimDaily() {
             const now = Date.now();
             if(now > lastDaily + 86400000) {
                 userRef.update({ score: score + 10000, lastDaily: now });
-                tg.showAlert("10,000 Raxmonov bonus olindi!");
-            } else tg.showAlert("Hali vaqt bor!");
+                tg.showAlert("10,000 Raxmonov olindi!");
+            } else tg.showAlert("Ertaga qaytib keling!");
         }
+
+        setInterval(() => { if(energy < 1000) { energy = Math.min(1000, energy + 5); userRef.update({ energy: energy }); } }, 3000);
+        function closePanel() { document.getElementById('overlay').style.display = 'none'; }
     </script>
 </body>
 </html>
