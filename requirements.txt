@@ -1,4 +1,6 @@
 aiogram
 yt-dlp
 flask
+shazamio
+
 
