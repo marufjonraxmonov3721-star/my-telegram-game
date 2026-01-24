@@ -72,7 +72,7 @@ async def handle_instagram(message: types.Message):
             caption = (
                 "✅ **Video muvaffaqiyatli yuklandi!**\n\n"
                 f"⏱ **Vaqt:** {elapsed_time} soniya\n"
-                "👤 **Dasturchi:** @M_Raxmonov\n"
+                "👤 **Dasturchi:** @Raxmonov_Maruf\n"
                 "🤖 **Bot:** @Raxmonov_save_bot"
             )
             
