@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# --- RENDER UCHUN VEB-SERVER (XATONI TUZATISH UCHUN) ---
+# --- RENDER UCHUN VEB-SERVER (O'CHIB QOLMASLIGI UCHUN) ---
 app = Flask('')
 
 @app.route('/')
@@ -29,10 +29,10 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-# --- CHIROYLI TUGMALAR ---
+# --- CHIROYLI TUGMA ---
 def main_menu():
     buttons = [
-        [InlineKeyboardButton(text="Bot muallifi 👨‍💻", url="https://t.me/marufjor")]
+        [InlineKeyboardButton(text="Dasturchi 👨‍💻", url="https://t.me/M_Raxmonov")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -45,7 +45,6 @@ async def send_welcome(message: types.Message):
         "🤖 Men Instagram videolarini yuklab beruvchi professional botman.\n\n"
         "📥 Menga shunchaki Instagram **Reels** yoki **Video** linkini yuboring!"
     )
-    # Rasm bilan chiroyli chiqishi uchun (Instagram logosi)
     await message.answer_photo(
         photo="https://static.vecteezy.com/system/resources/previews/018/930/415/original/instagram-logo-instagram-icon-transparent-free-png.png",
         caption=welcome_text,
@@ -62,7 +61,7 @@ async def handle_instagram(message: types.Message):
     start_time = time.time()
     
     try:
-        # Tezkor yuklash (Direct link)
+        # To'g'ridan-to'g'ri manzilni olish
         command = ['yt-dlp', '-g', '-f', 'mp4', url]
         result = subprocess.run(command, capture_output=True, text=True)
         direct_link = result.stdout.strip()
@@ -73,7 +72,7 @@ async def handle_instagram(message: types.Message):
             caption = (
                 "✅ **Video muvaffaqiyatli yuklandi!**\n\n"
                 f"⏱ **Vaqt:** {elapsed_time} soniya\n"
-                "👤 **Muallif:** @m.raxmonov
+                "👤 **Dasturchi:** @M_Raxmonov\n"
                 "🤖 **Bot:** @Raxmonov_save_bot"
             )
             
@@ -88,17 +87,17 @@ async def handle_instagram(message: types.Message):
         else:
             await status_msg.edit_text("❌ **Xatolik:** Videoni yuklab bo'lmadi. Linkni tekshirib ko'ring.")
             
-    except Exception as e:
-        await status_msg.edit_text(f"⚠️ **Tizimda xatolik:** {e}")
+    except Exception:
+        await status_msg.edit_text("⚠️ **Tizimda xatolik yuz berdi.**")
 
-# --- BOSHQA HABARLAR ---
+# --- BOSHQA LINKLAR ---
 @dp.message()
 async def other_messages(message: types.Message):
     if message.text and "http" in message.text and "instagram.com" not in message.text:
         await message.reply("⚠️ **Kechirasiz!** Men faqat **Instagram** videolarini yuklay olaman.")
 
 async def main():
-    keep_alive() # Veb-serverni ishga tushirish
+    keep_alive() # Veb-serverni fonda ishga tushirish
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
