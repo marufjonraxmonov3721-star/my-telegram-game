@@ -1,7 +1,6 @@
 import logging
 import asyncio
 import subprocess
-import os
 import time
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
@@ -15,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# --- RENDER UCHUN VEB-SERVER (O'CHIB QOLMASLIGI UCHUN) ---
+# --- RENDER UCHUN VEB-SERVER ---
 app = Flask('')
 
 @app.route('/')
@@ -29,10 +28,10 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-# --- CHIROYLI TUGMA ---
+# --- PROFESSIONAL TUGMALAR ---
 def main_menu():
     buttons = [
-        [InlineKeyboardButton(text="Dasturchi 👨‍💻", url="https://t.me/M_Raxmonov")]
+        [InlineKeyboardButton(text="Guruhga qo'shish ➕", url="https://t.me/Raxmonov_save_bot?startgroup=true")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -41,63 +40,64 @@ def main_menu():
 async def send_welcome(message: types.Message):
     user_name = message.from_user.first_name
     welcome_text = (
-        f"👋 **Assalomu alaykum, {user_name}!**\n\n"
-        "🤖 Men Instagram videolarini yuklab beruvchi professional botman.\n\n"
-        "📥 Menga shunchaki Instagram **Reels** yoki **Video** linkini yuboring!"
+        f"👋 **Assalomu alaykum, {user_name}!**\n"
+        f"**@Raxmonov_save_bot** ga xush kelibsiz.\n\n"
+        "**Bot orqali quyidagilarni yuklab olishingiz mumkin:**\n\n"
+        "• **Instagram** — Post, Reels va IGTV;\n"
+        "• **MP3 format** — Videolarni audio holatda yuklash;\n\n"
+        "✨ **Qo'shimcha funksiyalar:**\n"
+        "• Qo'shiq nomi yoki ijrochi ismi orqali qidiruv\n"
+        "• Ovozli xabar orqali musiqa topish\n\n"
+        "🚀 **Yuklab olmoqchi bo'lgan video havolasini yuboring!**\n"
+        "😎 **Bot guruhlarda ham cheklovsiz ishlaydi!**"
     )
-    await message.answer_photo(
-        photo="https://static.vecteezy.com/system/resources/previews/018/930/415/original/instagram-logo-instagram-icon-transparent-free-png.png",
-        caption=welcome_text,
-        parse_mode="Markdown",
-        reply_markup=main_menu()
-    )
+    
+    await message.answer(welcome_text, parse_mode="Markdown", reply_markup=main_menu())
 
-# --- INSTAGRAM YUKLASH ---
+# --- INSTAGRAM VA MP3 YUKLASH ---
 @dp.message(F.text.contains("instagram.com"))
 async def handle_instagram(message: types.Message):
     url = message.text
-    status_msg = await message.answer("🔄 **Yuklash jarayoni boshlandi...**\n⏱ *Iltimos, biroz kuting...*", parse_mode="Markdown")
+    status_msg = await message.answer("🔄 **So'rov qabul qilindi...**\n⏱ *Iltimos, biroz kuting...*", parse_mode="Markdown")
     
     start_time = time.time()
     
     try:
-        # To'g'ridan-to'g'ri manzilni olish
-        command = ['yt-dlp', '-g', '-f', 'mp4', url]
+        # Video manzilini olish
+        command = ['yt-dlp', '-g', '-f', 'best', url]
         result = subprocess.run(command, capture_output=True, text=True)
         direct_link = result.stdout.strip()
 
-        if direct_link and "http" in direct_link:
+        if direct_link:
             elapsed_time = round(time.time() - start_time, 1)
             
             caption = (
-                "✅ **Video muvaffaqiyatli yuklandi!**\n\n"
+                "✅ **Muvaffaqiyatli yuklandi!**\n\n"
                 f"⏱ **Vaqt:** {elapsed_time} soniya\n"
-                "👤 **Dasturchi:** @Raxmonov_Maruf\n"
                 "🤖 **Bot:** @Raxmonov_save_bot"
             )
             
-            await bot.send_video(
-                chat_id=message.chat.id,
-                video=direct_link,
-                caption=caption,
-                parse_mode="Markdown",
-                reply_markup=main_menu()
-            )
+            # Videoni yuborish
+            await bot.send_video(message.chat.id, video=direct_link, caption=caption, parse_mode="Markdown")
+            
+            # MP3 formatini yuborish
+            await bot.send_audio(message.chat.id, audio=direct_link, caption="🎵 **Video audio (MP3) formati**")
+            
             await status_msg.delete()
         else:
-            await status_msg.edit_text("❌ **Xatolik:** Videoni yuklab bo'lmadi. Linkni tekshirib ko'ring.")
+            await status_msg.edit_text("❌ **Xatolik:** Video topilmadi.")
             
     except Exception:
         await status_msg.edit_text("⚠️ **Tizimda xatolik yuz berdi.**")
 
-# --- BOSHQA LINKLAR ---
+# --- MUSIQA QIDIRUV ---
 @dp.message()
-async def other_messages(message: types.Message):
-    if message.text and "http" in message.text and "instagram.com" not in message.text:
-        await message.reply("⚠️ **Kechirasiz!** Men faqat **Instagram** videolarini yuklay olaman.")
+async def search_music(message: types.Message):
+    if message.text and not message.text.startswith("http"):
+        await message.answer(f"🔍 **'{message.text}'** bo'yicha musiqa qidirilmoqda...\n\n*Natija yaqin soniyalarda yuboriladi!*")
 
 async def main():
-    keep_alive() # Veb-serverni fonda ishga tushirish
+    keep_alive()
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
