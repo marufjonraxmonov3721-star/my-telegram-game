@@ -6,13 +6,28 @@ import time
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from flask import Flask
+from threading import Thread
 
-# Bot tokeni
+# Bot sozlamalari
 API_TOKEN = '8295530400:AAFxunjlp0c318bd8XfvR-hnMUho7JAhQCU'
-
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
+
+# --- RENDER UCHUN VEB-SERVER (XATONI TUZATISH UCHUN) ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # --- CHIROYLI TUGMALAR ---
 def main_menu():
@@ -30,6 +45,7 @@ async def send_welcome(message: types.Message):
         "🤖 Men Instagram videolarini yuklab beruvchi professional botman.\n\n"
         "📥 Menga shunchaki Instagram **Reels** yoki **Video** linkini yuboring!"
     )
+    # Rasm bilan chiroyli chiqishi uchun (Instagram logosi)
     await message.answer_photo(
         photo="https://static.vecteezy.com/system/resources/previews/018/930/415/original/instagram-logo-instagram-icon-transparent-free-png.png",
         caption=welcome_text,
@@ -41,26 +57,23 @@ async def send_welcome(message: types.Message):
 @dp.message(F.text.contains("instagram.com"))
 async def handle_instagram(message: types.Message):
     url = message.text
-    # Yuklash boshlanganini bildirish
     status_msg = await message.answer("🔄 **Yuklash jarayoni boshlandi...**\n⏱ *Iltimos, biroz kuting...*", parse_mode="Markdown")
     
-    start_time = time.time() # Vaqtni hisoblash boshlandi
+    start_time = time.time()
     
     try:
-        # Direct link olish
+        # Tezkor yuklash (Direct link)
         command = ['yt-dlp', '-g', '-f', 'mp4', url]
         result = subprocess.run(command, capture_output=True, text=True)
         direct_link = result.stdout.strip()
 
         if direct_link and "http" in direct_link:
-            end_time = time.time()
-            elapsed_time = round(end_time - start_time, 1) # Qancha vaqt ketgani
+            elapsed_time = round(time.time() - start_time, 1)
             
-            # Videoni yuborish
             caption = (
                 "✅ **Video muvaffaqiyatli yuklandi!**\n\n"
                 f"⏱ **Vaqt:** {elapsed_time} soniya\n"
-                "👤 **Muallif:** @marufjor\n"
+                "👤 **Muallif:** @m.raxmonov
                 "🤖 **Bot:** @Raxmonov_save_bot"
             )
             
@@ -78,8 +91,15 @@ async def handle_instagram(message: types.Message):
     except Exception as e:
         await status_msg.edit_text(f"⚠️ **Tizimda xatolik:** {e}")
 
-# --- BOSHQA LINKLAR UCHUN ---
+# --- BOSHQA HABARLAR ---
 @dp.message()
 async def other_messages(message: types.Message):
     if message.text and "http" in message.text and "instagram.com" not in message.text:
-        await message.reply("⚠️ **Kechirasiz!** Men hozircha faqat **Instagram** videolarini yuklay olaman.")
+        await message.reply("⚠️ **Kechirasiz!** Men faqat **Instagram** videolarini yuklay olaman.")
+
+async def main():
+    keep_alive() # Veb-serverni ishga tushirish
+    await dp.start_polling(bot)
+
+if __name__ == '__main__':
+    asyncio.run(main())
